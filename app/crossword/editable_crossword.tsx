@@ -1,13 +1,23 @@
 'use client'
 
+import { useState } from 'react';
 import './crossword.css';
 
 const SQUARE_PIXELS = 24;
 
 function EditableSquare() {
+    const[text, setText] = useState('');
+
+    function onInsertText(e: React.FormEvent<HTMLInputElement>) {
+        const newText = e.currentTarget.value;
+        if (text.length == 0 || newText == '') {
+            setText(newText.toUpperCase());
+        }
+    }
+
     return (
         <div className="crossword-square size-[40px] border-2 border-black border-b-0 box-content">
-            <input className="crossword-input size-full"></input>
+            <input className="crossword-input" value={text} onInput={onInsertText}></input>
         </div>
     );
 }
