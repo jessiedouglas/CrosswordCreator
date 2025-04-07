@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import './crossword.css';
 
-const SQUARE_PIXELS = 24;
 
-function EditableSquare({editMode}: {editMode: EditMode}) {
+interface EditableCrosswordSettings {
+    editMode: EditMode;
+}
+
+function EditableSquare({editMode}: EditableCrosswordSettings) {
     const [text, setText] = useState('');
     const [boxColor, setBoxColor] = useState('white');
 
@@ -16,7 +19,7 @@ function EditableSquare({editMode}: {editMode: EditMode}) {
         }
     }
 
-    function onBoxToggle(e: React.FormEvent<HTMLElement>) {
+    function onBoxToggle() {
         if (boxColor == 'white') {
             setBoxColor('black');
             setText('');
@@ -27,14 +30,14 @@ function EditableSquare({editMode}: {editMode: EditMode}) {
 
     let content;
     if (editMode == EditMode.TEXT) {
-        content = <input className="crossword-input" value={text} onInput={onInsertText}></input>;
+        content = <input className="crossword-input" data-testid="crossword-input" value={text} onInput={onInsertText}></input>;
     } else {
-        let style = {backgroundColor: boxColor};
-        content = <div className="size-full" style={style} onClick={onBoxToggle}></div>;
+        const style = {backgroundColor: boxColor};
+        content = <div className="size-full" data-testid="inner-box" style={style} onClick={onBoxToggle}></div>;
     }
 
     return (
-        <div className="crossword-square size-[40px] border-2 border-black border-b-0 box-content">
+        <div className="crossword-square size-[40px] border-2 border-black border-b-0 box-content" data-testid="crossword-square">
             {content}
         </div>
     );
@@ -46,7 +49,7 @@ export enum EditMode {
     TOGGLE_BLACK
 }
 
-export function EditableCrossword({editMode}: {editMode: EditMode}) {
+export function EditableCrossword({editMode}: EditableCrosswordSettings) {
     if (editMode == EditMode.UNSPECIFIED || editMode == undefined) {
         throw new Error("Unspecified EditMode");
     }
