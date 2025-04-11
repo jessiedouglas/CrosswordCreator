@@ -45,6 +45,14 @@ describe('Size selection', () => {
         await userEvent.click(squares[0]);
         expect(squares[0].style.backgroundColor).toBe(SquareColor.BLACK);
     });
+
+    it('Loads a 25-square crossword after selecting 5x5 and hitting Select', async () => {
+        render(<PageNewCrossword />);
+        await userEvent.click(screen.getByTestId('dimensions-mini'));
+        await userEvent.click(screen.getByTestId("select-button"));
+
+        expect(screen.queryAllByTestId("crossword-square")).toHaveLength(25);
+    });
     
     it('Loads a 441-square crossword after selecting 21x21 and hitting Select', async () => {
         render(<PageNewCrossword />);

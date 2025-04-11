@@ -10,6 +10,7 @@ interface DimensionsSelectorSettings {
 
 enum DimensionsOptions {
     UNSPECIFIED,
+    MINI,
     WEEKDAY,
     SUNDAY,
     CUSTOM
@@ -40,7 +41,13 @@ function DimensionsSelector({setDimensions}: DimensionsSelectorSettings) {
         const selected: DimensionsOptions = Number(formData.get("dimensions"));
         setLastSelected(selected);
         let dimensions: Dimensions;
-        if (selected == DimensionsOptions.WEEKDAY) {
+        if (selected == DimensionsOptions.MINI) {
+            dimensions = {
+                height: 5,
+                width: 5
+            };
+            setDimensions(dimensions);
+        } else if (selected == DimensionsOptions.WEEKDAY) {
             dimensions = {
                 height: 15,
                 width: 15
@@ -80,6 +87,10 @@ function DimensionsSelector({setDimensions}: DimensionsSelectorSettings) {
             <fieldset className="w-fit flex flex-col justify-center mt-8 pt-2 mb-8">
                 <legend className="font-bold text-xl">Select dimensions:</legend>
                 <div className="flex flex-col w-fit px-8 text-lg">
+                <label>
+                        <input type="radio" id="mini" name="dimensions" value={DimensionsOptions.MINI} data-testid="dimensions-mini" defaultChecked={lastSelected == DimensionsOptions.MINI} />
+                        <span className="radio-label">5x5 (NYT Mini)</span>
+                    </label>
                     <label>
                         <input type="radio" id="weekday" name="dimensions" value={DimensionsOptions.WEEKDAY} data-testid="dimensions-weekday" defaultChecked={lastSelected == DimensionsOptions.WEEKDAY} />
                         <span className="radio-label">15x15 (NYT Mon-Sat)</span>
