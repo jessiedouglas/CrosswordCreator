@@ -33,3 +33,11 @@ body {
   background-color: white;
   color: #444
 }
+
+.error-message {
+  color: red;
+}
+
+input.error {
+  border-color: red;
+}

@@ -159,6 +159,19 @@ describe('Form validation', () => {
         expect(screen.queryAllByTestId("crossword-square")).toHaveLength(0);
     });
 
+    it('throws an error if width is more than 25', async () => {
+        render(<PageNewCrossword />);
+        await userEvent.click(screen.getByTestId('dimensions-custom'));
+        await userEvent.click(screen.getByTestId('custom-height'));
+        await userEvent.keyboard('7');
+        await userEvent.click(screen.getByTestId('custom-width'));
+        await userEvent.keyboard('29');
+        await userEvent.click(screen.getByTestId("select-button"));
+
+        expect(screen.getByTestId("error-message").textContent?.toLowerCase()).toContain("width cannot");
+        expect(screen.queryAllByTestId("crossword-square")).toHaveLength(0);
+    });
+
     it('allows submit after error if custom error is fixed', async () => {
         // Trigger error
         render(<PageNewCrossword />);

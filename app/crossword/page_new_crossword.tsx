@@ -75,6 +75,12 @@ function DimensionsSelector({setDimensions}: DimensionsSelectorSettings) {
                     widthError,
                     heightError
                 });
+            } else if (dimensions.width > 25) {
+                setError({
+                    message: 'Width cannot be more than 25.',
+                    widthError: true,
+                    heightError: false
+                });
             } else {
                 setDimensions(dimensions);
             }
@@ -100,7 +106,7 @@ function DimensionsSelector({setDimensions}: DimensionsSelectorSettings) {
                         <span className="radio-label">21x21 (NYT Sun)</span>
                     </label>
 
-                    {error.message && <p id="error-message" data-testid="error-message">{error.message}</p>}
+                    {error.message && <p className="error-message" data-testid="error-message">{error.message}</p>}
                     <label>
                         <input type="radio" id="custom" name="dimensions" value={DimensionsOptions.CUSTOM} data-testid="dimensions-custom" 
                         defaultChecked={lastSelected == DimensionsOptions.CUSTOM}/>
