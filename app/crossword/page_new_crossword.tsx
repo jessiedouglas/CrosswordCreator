@@ -24,6 +24,12 @@ function DimensionsSelector({setDimensions}: DimensionsSelectorSettings) {
         heightError: false
     });
 
+    const selectCustomDimensions = () => {
+        const customRadio = document.getElementById("custom") as HTMLInputElement;
+        customRadio.checked = true;
+        setLastSelected(DimensionsOptions.CUSTOM);
+    };
+
     const submitDimensions = (formData: FormData) => {
         // Clear previous error
         setError({
@@ -89,9 +95,9 @@ function DimensionsSelector({setDimensions}: DimensionsSelectorSettings) {
                         defaultChecked={lastSelected == DimensionsOptions.CUSTOM}/>
                         <span className="radio-label">Custom</span>
                         <div className="pl-8">
-                            <span>w: <input type="text" name="custom-width" className={(error.widthError ? "error " : "") + "number-input"} data-testid="custom-width"></input></span>
+                            <span>w: <input type="text" name="custom-width" className={(error.widthError ? "error " : "") + "number-input"} data-testid="custom-width" onClick={selectCustomDimensions}></input></span>
                             <span className="mx-2">×</span>
-                            <span>h: <input type="text" name="custom-height" className={(error.heightError ? "error " : "") + "number-input"} data-testid="custom-height"></input></span>
+                            <span>h: <input type="text" name="custom-height" className={(error.heightError ? "error " : "") + "number-input"} data-testid="custom-height" onClick={selectCustomDimensions}></input></span>
                         </div>
                     </label>
                 </div>

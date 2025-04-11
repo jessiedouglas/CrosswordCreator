@@ -13,6 +13,22 @@ describe('Size selection', () => {
         expect(weekdayRadioButton.checked).toBe(true);
     });
 
+    it('Auto-selects custom if the height input is clicked', async () => {
+        render(<PageNewCrossword />);
+        await userEvent.click(screen.getByTestId('custom-height'));
+        const customRadioButton: HTMLInputElement = screen.getByTestId('dimensions-custom');
+
+        expect(customRadioButton.checked).toBe(true);
+    });
+
+    it('Auto-selects custom if the width input is clicked', async () => {
+        render(<PageNewCrossword />);
+        await userEvent.click(screen.getByTestId('custom-width'));
+        const customRadioButton: HTMLInputElement = screen.getByTestId('dimensions-custom');
+
+        expect(customRadioButton.checked).toBe(true);
+    });
+
     it('Loads a 225-square crossword after hitting Select', async () => {
         render(<PageNewCrossword />);
         await userEvent.click(screen.getByTestId("select-button"));
