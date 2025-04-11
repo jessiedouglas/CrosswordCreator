@@ -66,15 +66,14 @@ export function EditableCrossword({crossword, editMode}: EditableCrosswordSettin
         crossword.squares[index].value = value;
     }
 
-    const NUM_COLUMNS = 15;
     const squareElements = [];
     for (let i=0; i<crossword.squares.length; i++) {
         const square = crossword.squares[i];
         squareElements.push(<EditableSquare index={i} color={square.color} value={square.value} editMode={editMode} updateSquare={updateSquare} key={`square-${i}`}></EditableSquare>)
     }
-    const style = {width: `${NUM_COLUMNS * 40}px`} // TODO: make 24 a constant
+    const style = {width: `${crossword.dimensions.width * 40}px`}
     return (
-        <div className={`crossword grid grid-cols-${NUM_COLUMNS} grid-flow-row  border-b-2 border-black box-content`} style={style}>
+        <div className={`crossword grid grid-cols-${crossword.dimensions.width} grid-flow-row  border-b-2 border-black box-content`} style={style}>
             {squareElements}
         </div>
     );

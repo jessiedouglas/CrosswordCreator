@@ -19,3 +19,17 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.button {
+  padding: 10px 20px;
+  border: 2px solid black;
+  border-radius: 8px;
+  background-color: #444;
+  color: white;
+  font-weight: 600;
+}
+
+.button:active {
+  background-color: white;
+  color: #444
+}

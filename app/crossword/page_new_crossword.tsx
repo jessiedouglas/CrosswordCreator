@@ -70,8 +70,8 @@ function DimensionsSelector({setDimensions}: DimensionsSelectorSettings) {
     }
 
     return (
-        <form action={submitDimensions}>
-            <fieldset className="flex flex-col justify-center mt-8 pt-2 mb-8">
+        <form action={submitDimensions} className="w-fit">
+            <fieldset className="w-fit flex flex-col justify-center mt-8 pt-2 mb-8">
                 <legend className="font-bold text-xl">Select dimensions:</legend>
                 <div className="flex flex-col w-fit px-8 text-lg">
                     <label>
@@ -118,8 +118,8 @@ export function PageNewCrossword() {
         content = <DimensionsSelector setDimensions={setDimensions} />
     }
     return (
-        <main className="flex flex-col justify-center">
-            <h1 className="font-bold text-7xl mb-12">New Crossword</h1>
+        <main className="size-full flex flex-wrap flex-col content-center">
+            <h1 className="w-fit font-bold text-7xl mb-12">New Crossword</h1>
             {content}
         </main>
     );
