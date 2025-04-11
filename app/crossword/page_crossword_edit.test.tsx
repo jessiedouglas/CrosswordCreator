@@ -3,19 +3,20 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { describe, expect, it } from '@jest/globals';
 import { PageCrosswordEdit } from './page_crossword_edit';
-import { SquareColor } from '../models/crossword';
-import { beforeEach } from 'node:test';
+import { createNewCrossword, SquareColor, Crossword } from '../models/crossword';
+
+const CROSSWORD: Crossword = createNewCrossword({height: 15, width: 15});
 
 describe('Initial state', () => {
     it('starts with Toggle Black mode selected', () => {
-        render(<PageCrosswordEdit />);
+        render(<PageCrosswordEdit crossword={CROSSWORD} />);
         const modeToggleRadioButton: HTMLInputElement = screen.getByTestId('mode-toggle-button');
 
         expect(modeToggleRadioButton.checked).toBe(true);
     });
 
     it('allows black squares to be selected', async () => {
-        render(<PageCrosswordEdit />);
+        render(<PageCrosswordEdit crossword={CROSSWORD} />);
         const squares = screen.queryAllByTestId("inner-box");
         expect((squares[0] as HTMLElement).style.backgroundColor).toBe(SquareColor.WHITE);
         await userEvent.click(squares[0]);
@@ -26,7 +27,7 @@ describe('Initial state', () => {
 
 describe('After selecting text edit mode', () => {
     it('doesnt allow toggling black/white', async () => {
-        render(<PageCrosswordEdit />);
+        render(<PageCrosswordEdit crossword={CROSSWORD} />);
         const modeTextRadioButton: HTMLInputElement = screen.getByTestId('mode-text-button');
         await userEvent.click(modeTextRadioButton);
 
@@ -39,7 +40,7 @@ describe('After selecting text edit mode', () => {
     });
 
     it('allows text to be input', async () => {
-        render(<PageCrosswordEdit />);
+        render(<PageCrosswordEdit crossword={CROSSWORD} />);
         const modeTextRadioButton: HTMLInputElement = screen.getByTestId('mode-text-button');
         await userEvent.click(modeTextRadioButton);
 
@@ -54,7 +55,7 @@ describe('After selecting text edit mode', () => {
 
 describe('After re-selecting toggle black/white mode', () => {
     it('allows toggling black/white', async () => {
-        render(<PageCrosswordEdit />);
+        render(<PageCrosswordEdit crossword={CROSSWORD} />);
         const modeTextRadioButton: HTMLInputElement = screen.getByTestId('mode-text-button');
         const modeToggleRadioButton: HTMLInputElement = screen.getByTestId('mode-toggle-button');
         await userEvent.click(modeTextRadioButton);
@@ -69,7 +70,7 @@ describe('After re-selecting toggle black/white mode', () => {
     });
 
     it('doesnt allow text to be input', async () => {
-        render(<PageCrosswordEdit />);
+        render(<PageCrosswordEdit crossword={CROSSWORD} />);
         const modeTextRadioButton: HTMLInputElement = screen.getByTestId('mode-text-button');
         const modeToggleRadioButton: HTMLInputElement = screen.getByTestId('mode-toggle-button');
         await userEvent.click(modeTextRadioButton);

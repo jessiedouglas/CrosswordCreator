@@ -4,16 +4,21 @@ import '@testing-library/jest-dom';
 import {EditableCrossword} from './editable_crossword';
 import {EditMode} from './page_crossword_edit';
 import { describe, expect, it } from '@jest/globals';
-import { createNewCrossword, SquareColor } from '../models/crossword';
+import { createNewCrossword, Dimensions, SquareColor } from '../models/crossword';
+
+const DIMENSIONS: Dimensions = {
+    width: 15,
+    height: 15
+};
 
 describe('Text Edit Mode', () => {
-    it('renders a 15x15 grid', () => {
-        render(<EditableCrossword crossword={createNewCrossword()} editMode={EditMode.TEXT} />);
+    it('renders a grid', () => {
+        render(<EditableCrossword crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TEXT} />);
         expect(screen.queryAllByTestId("crossword-square")).toHaveLength(225);
     });
 
     it('converts a letter entered in the grid to uppercase', async () => {
-        render(<EditableCrossword crossword={createNewCrossword()} editMode={EditMode.TEXT} />);
+        render(<EditableCrossword crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TEXT} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard('a');
@@ -22,7 +27,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('allows uppercase letters', async () => {
-        render(<EditableCrossword crossword={createNewCrossword()} editMode={EditMode.TEXT} />);
+        render(<EditableCrossword crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TEXT} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard('B');
@@ -31,7 +36,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('allows numbers', async () => {
-        render(<EditableCrossword crossword={createNewCrossword()} editMode={EditMode.TEXT} />);
+        render(<EditableCrossword crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TEXT} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard('1');
@@ -40,7 +45,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('allows other characters', async () => {
-        render(<EditableCrossword crossword={createNewCrossword()} editMode={EditMode.TEXT} />);
+        render(<EditableCrossword crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TEXT} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard(';');
@@ -49,7 +54,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('doesnt accept more than one character', async () => {
-        render(<EditableCrossword crossword={createNewCrossword()} editMode={EditMode.TEXT} />);
+        render(<EditableCrossword crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TEXT} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard('abc');
@@ -58,7 +63,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('allows deletion', async () => {
-        render(<EditableCrossword crossword={createNewCrossword()} editMode={EditMode.TEXT} />);
+        render(<EditableCrossword crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TEXT} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard('a');
@@ -68,7 +73,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('allows replacing a letter', async () => {
-        render(<EditableCrossword crossword={createNewCrossword()} editMode={EditMode.TEXT} />);
+        render(<EditableCrossword crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TEXT} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard('a');
@@ -79,7 +84,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('renders previously entered text', () => {
-        const crossword = createNewCrossword();
+        const crossword = createNewCrossword(DIMENSIONS);
         crossword.squares[0].value = 'M';
         render(<EditableCrossword crossword={crossword} editMode={EditMode.TEXT} />);
         const inputs = screen.queryAllByTestId("crossword-input");
@@ -88,7 +93,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('renders previously entered black and white squares', () => {
-        const crossword = createNewCrossword();
+        const crossword = createNewCrossword(DIMENSIONS);
         crossword.squares[0].color = SquareColor.BLACK;
         render(<EditableCrossword crossword={crossword} editMode={EditMode.TEXT} />);
         const inputs = screen.queryAllByTestId("crossword-input");
@@ -100,12 +105,12 @@ describe('Text Edit Mode', () => {
 
 describe('Black Toggle Mode', () => {
     it('renders a 15x15 grid', () => {
-        render(<EditableCrossword crossword={createNewCrossword()} editMode={EditMode.TOGGLE_BLACK} />);
+        render(<EditableCrossword crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TOGGLE_BLACK} />);
         expect(screen.queryAllByTestId("crossword-square")).toHaveLength(225);
     });
 
     it('doesnt allow text entry', async () => {
-        render(<EditableCrossword crossword={createNewCrossword()} editMode={EditMode.TOGGLE_BLACK} />);
+        render(<EditableCrossword crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TOGGLE_BLACK} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         expect(inputs.length).toBe(0);
 
@@ -117,7 +122,7 @@ describe('Black Toggle Mode', () => {
     });
 
     it('changes a square from white to black on one click', async () => {
-        render(<EditableCrossword crossword={createNewCrossword()} editMode={EditMode.TOGGLE_BLACK} />);
+        render(<EditableCrossword crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TOGGLE_BLACK} />);
         const squares = screen.queryAllByTestId("inner-box");
         await userEvent.click(squares[0]);
         
@@ -125,7 +130,7 @@ describe('Black Toggle Mode', () => {
     });
 
     it('changes a square back to white on two clicks', async () => {
-        render(<EditableCrossword crossword={createNewCrossword()} editMode={EditMode.TOGGLE_BLACK} />);
+        render(<EditableCrossword crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TOGGLE_BLACK} />);
         const squares = screen.queryAllByTestId("inner-box");
         await userEvent.click(squares[0]);
         await userEvent.click(squares[0]);
@@ -134,7 +139,7 @@ describe('Black Toggle Mode', () => {
     });
 
     it('renders previously entered text', () => {
-        const crossword = createNewCrossword();
+        const crossword = createNewCrossword(DIMENSIONS);
         crossword.squares[0].value = 'M';
         render(<EditableCrossword crossword={crossword} editMode={EditMode.TOGGLE_BLACK} />);
         const squares = screen.queryAllByTestId("inner-box");
@@ -143,7 +148,7 @@ describe('Black Toggle Mode', () => {
     });
 
     it('renders previously entered black and white squares', () => {
-        const crossword = createNewCrossword();
+        const crossword = createNewCrossword(DIMENSIONS);
         crossword.squares[0].color = SquareColor.BLACK;
         render(<EditableCrossword crossword={crossword} editMode={EditMode.TOGGLE_BLACK} />);
         const squares = screen.queryAllByTestId("inner-box");

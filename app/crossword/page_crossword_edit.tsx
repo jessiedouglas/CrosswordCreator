@@ -4,10 +4,13 @@ import { useState } from 'react';
 import './crossword.css';
 import { EditableCrossword } from './editable_crossword';
 import { CrosswordSettings } from './crossword_settings';
-import { createNewCrossword } from '../models/crossword';
+import { createNewCrossword, Crossword } from '../models/crossword';
 
-export function PageCrosswordEdit() {
-    const crossword = createNewCrossword();
+interface PageCrosswordEditSettings {
+    crossword: Crossword;
+}
+
+export function PageCrosswordEdit({crossword}: PageCrosswordEditSettings) {
     const [editMode, setEditMode] = useState(EditMode.TOGGLE_BLACK);
 
     return (

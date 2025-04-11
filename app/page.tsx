@@ -1,9 +1,9 @@
-import { PageCrosswordEdit } from "./crossword/page_crossword_edit";
+import { PageNewCrossword } from "./crossword/page_new_crossword";
 
 export default function Home() {
   return (
     <main className="flex size-full justify-center pt-[100px]">
-        <PageCrosswordEdit />
+        <PageNewCrossword />
     </main>
   );
 }

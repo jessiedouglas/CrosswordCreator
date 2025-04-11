@@ -22,3 +22,27 @@ input.crossword-input {
 input.crossword-input:focus {
     background-color: aliceblue;
 }
+
+.radio-label {
+    padding-left: 8px;
+}
+
+.number-input {
+    width: 40px;
+    border: 1px solid gray;
+    border-radius: 5px;
+}
+
+.button {
+    padding: 10px 20px;
+    border: 2px solid black;
+    border-radius: 8px;
+    background-color: #444;
+    color: white;
+    font-weight: 600;
+}
+
+.button:active {
+    background-color: white;
+    color: #444
+}

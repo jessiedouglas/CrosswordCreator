@@ -1,5 +1,11 @@
 export interface Crossword {
+    dimensions: Dimensions;
     squares: Square[];
+}
+
+export interface Dimensions {
+    width: number;
+    height: number;
 }
 
 export enum SquareColor {
@@ -13,14 +19,15 @@ interface Square {
     value: string;
 }
 
-export function createNewCrossword(): Crossword {
+export function createNewCrossword(dimensions: Dimensions): Crossword {
+    const numSquares = dimensions.width * dimensions.height;
     const squares: Square[] = [];
-    for (let i=0; i<225; i++) {
+    for (let i=0; i<numSquares; i++) {
         const square: Square = {
             color: SquareColor.WHITE,
             value: ''
         };
         squares.push(square);
     }
-    return {squares};
+    return {dimensions, squares};
 }
