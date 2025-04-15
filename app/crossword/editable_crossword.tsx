@@ -44,7 +44,7 @@ function EditableSquare({index, square, editMode, updateSquare}: EditableSquareS
         backgroundColor: square.color == SquareColor.WHITE ? "rgba(1, 1, 1, 0)" : "rgba(0, 0, 0, 1)"
     };
     if (editMode == EditMode.TEXT) {
-        content = <input className="crossword-input" data-testid="crossword-input" value={square.value} style={style} onInput={onInsertText}></input>;
+        content = <input className="crossword-input" data-testid="crossword-input" value={square.value} style={style} disabled={square.color == SquareColor.BLACK} onInput={onInsertText}></input>;
     } else {
         content = <div className="crossword-input size-full" data-testid="inner-box" style={style} onClick={onBoxToggle}>{square.value}</div>;
     }
