@@ -94,6 +94,17 @@ describe('Text Edit Mode', () => {
         expect((inputs[0] as HTMLInputElement).value).toBe('B');
     });
 
+    it('doesnt allow entering text in a black square', async () => {
+        const crossword = createNewCrossword(DIMENSIONS);
+        crossword.squares[0].color = SquareColor.BLACK;
+        render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+        const inputs = screen.queryAllByTestId("crossword-input");
+        await userEvent.click(inputs[0]);
+        await userEvent.keyboard('a');
+
+        expect((inputs[0] as HTMLInputElement).value).toBe('');
+    });
+
     it('renders previously entered text', () => {
         const crossword = createNewCrossword(DIMENSIONS);
         crossword.squares[0].value = 'M';
