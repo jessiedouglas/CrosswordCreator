@@ -1,8 +1,8 @@
 import { describe, expect, it } from '@jest/globals';
-import { createNewCrossword, SquareColor } from './crossword';
+import { createNewCrossword, duplicateCrossword, SquareColor } from './crossword';
 
 describe('Crossword', () => { 
-    describe('initialization', () => {
+    describe('createNewCrossword', () => {
         it('creates a number of squares equal to the product of the dimensions', () => {
             const crossword = createNewCrossword({height: 3, width: 5});
             expect(crossword.squares).toHaveLength(15);
@@ -41,6 +41,39 @@ describe('Crossword', () => {
         });
     });
 
+    describe('duplicateCrossword', () => {
+        it('preserves the dimensions', () => {
+            const prevCrossword = createNewCrossword({height: 3, width: 7});
+
+            const newCrossword = duplicateCrossword(prevCrossword);
+            expect(newCrossword.dimensions.height).toBe(3);
+            expect(newCrossword.dimensions.width).toBe(7);
+        });
+
+        it('preserves values and colors of squares', () => {
+            const prevCrossword = createNewCrossword({height: 1, width: 2});
+            prevCrossword.squares[0].value = 'a';
+            prevCrossword.squares[1].color = SquareColor.BLACK;
+
+            const newCrossword = duplicateCrossword(prevCrossword);
+            expect(newCrossword.squares[0].color).toBe(SquareColor.WHITE);
+            expect(newCrossword.squares[0].value).toBe('a');
+            expect(newCrossword.squares[1].color).toBe(SquareColor.BLACK);
+            expect(newCrossword.squares[1].value).toBe('');
+        });
+
+        it('regenerates numbers for squares', () => {
+            const prevCrossword = createNewCrossword({height: 1, width: 2});
+            prevCrossword.squares[0].color = SquareColor.BLACK;
+            expect(prevCrossword.squares[0].number).toBe(1);
+            expect(prevCrossword.squares[1].number).toBe(2);
+
+            const newCrossword = duplicateCrossword(prevCrossword);
+            expect(newCrossword.squares[0].number).toBe(null);
+            expect(newCrossword.squares[1].number).toBe(1);
+        });
+    });
+
     describe('calculateNumbers', () => {
         it('only numbers top and left squares if there are no black squares', () => {
             const crossword = createNewCrossword({height: 3, width: 3});
@@ -59,11 +92,11 @@ describe('Crossword', () => {
         });
 
         it('doesnt number black squares', () => {
-            const crossword = createNewCrossword({height: 2, width: 2});
-            for (let square of crossword.squares) {
+            const prevCrossword = createNewCrossword({height: 2, width: 2});
+            for (let square of prevCrossword.squares) {
                 square.color = SquareColor.BLACK;
             }
-            crossword.calculateNumbers();
+            const crossword = duplicateCrossword(prevCrossword);
 
             expect(crossword.squares[0].number).toBeNull();
             expect(crossword.squares[1].number).toBeNull();
@@ -72,9 +105,9 @@ describe('Crossword', () => {
         });
 
         it('numbers squares to the bottom and right of black squares', () => {
-            const crossword = createNewCrossword({height: 3, width: 3});
-            crossword.squares[4].color = SquareColor.BLACK;
-            crossword.calculateNumbers();
+            const prevCrossword = createNewCrossword({height: 3, width: 3});
+            prevCrossword.squares[4].color = SquareColor.BLACK;
+            const crossword = duplicateCrossword(prevCrossword);
 
             // First row
             expect(crossword.squares[0].number).toBe(1);

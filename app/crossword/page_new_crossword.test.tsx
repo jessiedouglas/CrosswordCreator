@@ -5,6 +5,10 @@ import { describe, expect, it } from '@jest/globals';
 import { PageNewCrossword } from './page_new_crossword';
 import { SquareColor } from '../models/crossword';
 
+
+const WHITE_BACKGROUND = "rgba(1, 1, 1, 0)";
+const BLACK_BACKGROUND = "rgb(0, 0, 0)";
+
 describe('Size selection', () => {
     it('Starts with 15x15 checked', () => {
         render(<PageNewCrossword />);
@@ -40,10 +44,10 @@ describe('Size selection', () => {
         render(<PageNewCrossword />);
         await userEvent.click(screen.getByTestId("select-button"));
         const squares: HTMLElement[] = screen.queryAllByTestId("inner-box");
-        expect(squares[0].style.backgroundColor).toBe(SquareColor.WHITE);
+        expect(squares[0].style.backgroundColor).toBe(WHITE_BACKGROUND);
 
         await userEvent.click(squares[0]);
-        expect(squares[0].style.backgroundColor).toBe(SquareColor.BLACK);
+        expect(squares[0].style.backgroundColor).toBe(BLACK_BACKGROUND);
     });
 
     it('Loads a 25-square crossword after selecting 5x5 and hitting Select', async () => {

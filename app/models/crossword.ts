@@ -9,33 +9,37 @@ export enum SquareColor {
     WHITE = 'white'
 }
 
-interface Square {
+export interface Square {
     color: SquareColor;
     value: string;
     number: number|null;
 }
 
 export class Crossword {
-    public dimensions: Dimensions;
-    public squares: Square[];
+    public readonly dimensions: Dimensions;
+    public readonly squares: Square[];
 
-    constructor(dimensions: Dimensions) {
+    constructor(dimensions: Dimensions, squares: Square[]|null) {
         this.validateDimensions(dimensions);
         this.dimensions = dimensions;
-        const numSquares = dimensions.width * dimensions.height;
-        this.squares = [];
-        for (let i=0; i<numSquares; i++) {
-            const square: Square = {
-                color: SquareColor.WHITE,
-                value: '',
-                number: null,
-            };
-            this.squares.push(square);
+        if (squares) {
+            this.squares = squares;
+        } else {
+            const numSquares = dimensions.width * dimensions.height;
+            this.squares = [];
+            for (let i=0; i<numSquares; i++) {
+                const square: Square = {
+                    color: SquareColor.WHITE,
+                    value: '',
+                    number: null,
+                };
+                this.squares.push(square);
+            }
         }
         this.calculateNumbers();
     }
 
-    public calculateNumbers(): void {
+    private calculateNumbers(): void {
         let counter = 1;
         for (let i=0; i<this.squares.length; i++) {
             const square = this.squares[i];
@@ -72,5 +76,25 @@ export class Crossword {
 }
 
 export function createNewCrossword(dimensions: Dimensions): Crossword {
-    return new Crossword(dimensions);
+    return new Crossword(dimensions, null);
+}
+
+export function duplicateCrossword(crossword: Crossword): Crossword {
+    const squares: Square[] = crossword.squares.map(s => duplicateSquare(s));
+    return new Crossword(duplicateDimensions(crossword.dimensions), squares);
+}
+
+function duplicateDimensions(dimensions: Dimensions): Dimensions {
+    return {
+        width: dimensions.width,
+        height: dimensions.height
+    }
+}
+
+function duplicateSquare(square: Square): Square {
+    return {
+        value: square.value,
+        color: square.color,
+        number: square.number
+    };
 }

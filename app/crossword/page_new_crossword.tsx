@@ -136,7 +136,7 @@ export function PageNewCrossword() {
 
     let content;
     if (crossword) {
-        content = <PageCrosswordEdit crossword={crossword} />
+        content = <PageCrosswordEdit crossword={crossword} setCrossword={setCrossword} />
     } else {
         content = <DimensionsSelector setDimensions={setDimensions} />
     }

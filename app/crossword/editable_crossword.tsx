@@ -3,77 +3,76 @@
 import { useState } from 'react';
 import { EditMode } from './page_crossword_edit';
 import './crossword.css';
-import { Crossword, SquareColor } from '../models/crossword';
+import { createNewCrossword, Crossword, duplicateCrossword, Square, SquareColor } from '../models/crossword';
 
 
 interface EditableCrosswordSettings {
     crossword: Crossword;
+    setCrossword: Function;
     editMode: EditMode;
 }
 
 interface EditableSquareSettings {
-    color: SquareColor;
-    editMode: EditMode;
     index: number;
+    square: Square;
+    editMode: EditMode;
     updateSquare: Function;
-    value: string;
 }
 
-function EditableSquare({color, editMode, index, updateSquare, value}: EditableSquareSettings) {
-    const [boxColor, updateBoxColor] = useState(color);
-    const [text, updateText] = useState(value);
-
+function EditableSquare({index, square, editMode, updateSquare}: EditableSquareSettings) {
     function onInsertText(e: React.FormEvent<HTMLInputElement>) {
         const newText = e.currentTarget.value;
-        if (text.length == 0 || newText == '') {
-            updateText(newText.toUpperCase());
-            updateSquare(index, boxColor, text);
+        if (square.value.length == 0 || newText == '') {
+            square.value = newText.toUpperCase();
+            updateSquare(index, square);
         }
     }
 
     function onBoxToggle() {
-        if (boxColor == SquareColor.WHITE) {
-            color = SquareColor.BLACK;
+        if (square.color == SquareColor.WHITE) {
+            square.color = SquareColor.BLACK;
+            square.value = '';
         } else {
-            color = SquareColor.WHITE;
+            square.color = SquareColor.WHITE;
         }
-        updateBoxColor(color);
-        updateSquare(index, boxColor, text);
+        updateSquare(index, square);
     }
 
     let content;
-    const style = {backgroundColor: boxColor};
+    const style = {
+        backgroundColor: square.color == SquareColor.WHITE ? "rgba(1, 1, 1, 0)" : "rgba(0, 0, 0, 1)"
+    };
     if (editMode == EditMode.TEXT) {
-        content = <input className="crossword-input" data-testid="crossword-input" value={text} style={style} onInput={onInsertText}></input>;
+        content = <input className="crossword-input" data-testid="crossword-input" value={square.value} style={style} onInput={onInsertText}></input>;
     } else {
-        content = <div className="crossword-input size-full" data-testid="inner-box" style={style} onClick={onBoxToggle}>{text}</div>;
+        content = <div className="crossword-input size-full" data-testid="inner-box" style={style} onClick={onBoxToggle}>{square.value}</div>;
     }
 
     return (
-        <div className="crossword-square size-[40px] border-2 border-black border-b-0 box-content" data-testid="crossword-square">
+        <div className="crossword-square size-[40px] border-t-2 border-l-2 border-black box-content" data-testid="crossword-square">
+            {square.number && <div className="square-number absolute z-[-1] pl-[2px]">{square.number}</div>}
             {content}
         </div>
     );
 }
 
-export function EditableCrossword({crossword, editMode}: EditableCrosswordSettings) {
+export function EditableCrossword({crossword, setCrossword, editMode}: EditableCrosswordSettings) {
     if (editMode == EditMode.UNSPECIFIED || editMode == undefined) {
         throw new Error("Unspecified EditMode");
     }
 
-    function updateSquare(index: number, color: SquareColor, value: string) {
-        crossword.squares[index].color = color;
-        crossword.squares[index].value = value;
+    const updateSquare = (index: number, square: Square) => {
+        crossword.squares[index] = square;
+        setCrossword(duplicateCrossword(crossword));
     }
 
     const squareElements = [];
     for (let i=0; i<crossword.squares.length; i++) {
-        const square = crossword.squares[i];
-        squareElements.push(<EditableSquare index={i} color={square.color} value={square.value} editMode={editMode} updateSquare={updateSquare} key={`square-${i}`}></EditableSquare>)
+        squareElements.push(<EditableSquare index={i} square={crossword.squares[i]} editMode={editMode} updateSquare={updateSquare} key={`square-${i}`}></EditableSquare>);
     }
     const style = {width: `${crossword.dimensions.width * 40}px`}
     return (
-        <div className={`crossword grid grid-cols-${crossword.dimensions.width} grid-flow-row  border-b-2 border-black box-content`} style={style}>
+        <div className={`crossword grid grid-cols-${crossword.dimensions.width} grid-flow-row border-r-2 border-b-2 border-black box-content`} style={style}>
             {squareElements}
         </div>
     );
