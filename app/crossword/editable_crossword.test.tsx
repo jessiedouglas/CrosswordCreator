@@ -2,7 +2,7 @@ import {render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import {EditableCrossword} from './editable_crossword';
-import {EditMode} from './page_crossword_edit';
+import {EditMode, SymmetryMode} from './page_crossword_edit';
 import { describe, expect, it } from '@jest/globals';
 import { createNewCrossword, Crossword, Dimensions, SquareColor } from '../models/crossword';
 import { useState } from 'react';
@@ -15,21 +15,21 @@ const WHITE_BACKGROUND = "rgba(1, 1, 1, 0)";
 const BLACK_BACKGROUND = "rgb(0, 0, 0)";
 
 /** A wrapper that uses state to trigger a rerender. */
-function TestCrosswordHolder({crossword, editMode}: {crossword: Crossword, editMode: EditMode}) {
+function TestCrosswordHolder({crossword, editMode, symmetryMode}: {crossword: Crossword, editMode: EditMode, symmetryMode: SymmetryMode}) {
     const [xword, setXword] = useState(crossword)
     return (
-        <EditableCrossword crossword={xword} setCrossword={setXword} editMode={editMode} />
+        <EditableCrossword crossword={xword} setCrossword={setXword} editMode={editMode} symmetryMode={symmetryMode} />
     )
 }
 
 describe('Text Edit Mode', () => {
     it('renders a grid', () => {
-        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} />);
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
         expect(screen.queryAllByTestId("crossword-square")).toHaveLength(225);
     });
 
     it('converts a letter entered in the grid to uppercase', async () => {
-        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} />);
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard('a');
@@ -38,7 +38,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('allows uppercase letters', async () => {
-        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} />);
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard('B');
@@ -47,7 +47,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('allows numbers', async () => {
-        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} />);
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard('1');
@@ -56,7 +56,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('allows other characters', async () => {
-        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} />);
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard(';');
@@ -65,7 +65,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('doesnt accept more than one character', async () => {
-        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} />);
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard('abc');
@@ -74,7 +74,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('allows deletion', async () => {
-        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} />);
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard('a');
@@ -84,7 +84,7 @@ describe('Text Edit Mode', () => {
     });
 
     it('allows replacing a letter', async () => {
-        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} />);
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         await userEvent.click(inputs[0]);
         await userEvent.keyboard('a');
@@ -97,7 +97,7 @@ describe('Text Edit Mode', () => {
     it('renders previously entered text', () => {
         const crossword = createNewCrossword(DIMENSIONS);
         crossword.squares[0].value = 'M';
-        render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} />);
+        render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
         const inputs = screen.queryAllByTestId("crossword-input");
 
         expect((inputs[0] as HTMLInputElement).value).toBe('M');
@@ -106,7 +106,7 @@ describe('Text Edit Mode', () => {
     it('renders previously entered black and white squares', () => {
         const crossword = createNewCrossword(DIMENSIONS);
         crossword.squares[0].color = SquareColor.BLACK;
-        render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} />);
+        render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
         const inputs = screen.queryAllByTestId("crossword-input");
 
         expect((inputs[0] as HTMLInputElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
@@ -116,12 +116,12 @@ describe('Text Edit Mode', () => {
 
 describe('Black Toggle Mode', () => {
     it('renders a 15x15 grid', () => {
-        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TOGGLE_BLACK} />);
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)} editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.NONE} />);
         expect(screen.queryAllByTestId("crossword-square")).toHaveLength(225);
     });
 
     it('doesnt allow text entry', async () => {
-        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TOGGLE_BLACK} />);
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.NONE} />);
         const inputs = screen.queryAllByTestId("crossword-input");
         expect(inputs.length).toBe(0);
 
@@ -133,7 +133,7 @@ describe('Black Toggle Mode', () => {
     });
 
     it('changes a square from white to black on one click', async () => {
-        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TOGGLE_BLACK} />);
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.NONE} />);
         const squares = screen.queryAllByTestId("inner-box");
         await userEvent.click(squares[0]);
         
@@ -141,7 +141,7 @@ describe('Black Toggle Mode', () => {
     });
 
     it('changes a square back to white on two clicks', async () => {
-        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TOGGLE_BLACK} />);
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.NONE} />);
         const squares = screen.queryAllByTestId("inner-box");
         await userEvent.click(squares[0]);
         await userEvent.click(squares[0]);
@@ -152,7 +152,7 @@ describe('Black Toggle Mode', () => {
     it('renders previously entered text', () => {
         const crossword = createNewCrossword(DIMENSIONS);
         crossword.squares[0].value = 'M';
-        render(<TestCrosswordHolder crossword={crossword} editMode={EditMode.TOGGLE_BLACK} />);
+        render(<TestCrosswordHolder crossword={crossword} editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.NONE} />);
         const squares = screen.queryAllByTestId("inner-box");
 
         expect((squares[0] as HTMLElement).textContent).toBe('M');
@@ -161,10 +161,123 @@ describe('Black Toggle Mode', () => {
     it('renders previously entered black and white squares', () => {
         const crossword = createNewCrossword(DIMENSIONS);
         crossword.squares[0].color = SquareColor.BLACK;
-        render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TOGGLE_BLACK} />);
+        render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.NONE} />);
         const squares = screen.queryAllByTestId("inner-box");
 
         expect((squares[0] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
         expect((squares[1] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+    });
+
+    describe('No Symmetry', () => {
+        it('doesnt change any other square colors when toggled white->black', async () => {
+            render(<TestCrosswordHolder crossword={createNewCrossword({width: 2, height: 2})}  editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.NONE} />);
+            const squares = screen.queryAllByTestId("inner-box");
+            await userEvent.click(squares[0]);
+
+            expect((squares[0] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+            expect((squares[1] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[2] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[3] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        });
+
+        it('doesnt change any other square colors when toggled black->white', async () => {
+            const crossword = createNewCrossword({width: 2, height: 2});
+            for (let square of crossword.squares) {
+                square.color = SquareColor.BLACK;
+            }
+
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.NONE} />);
+            const squares = screen.queryAllByTestId("inner-box");
+            await userEvent.click(squares[1]);
+
+            expect((squares[0] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+            expect((squares[1] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[2] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+            expect((squares[3] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+        });
+    });
+
+    describe('Rotational Symmetry', () => {
+        it('changes the rotationally opposite square to black when toggled black', async () => {
+            render(<TestCrosswordHolder crossword={createNewCrossword({width: 2, height: 2})}  editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.ROTATIONAL} />);
+            const squares = screen.queryAllByTestId("inner-box");
+            await userEvent.click(squares[0]);
+
+            expect((squares[0] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+            expect((squares[1] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[2] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[3] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+        });
+
+        it('changes the rotationally opposite square to white when toggled white', async () => {
+            const crossword = createNewCrossword({width: 2, height: 2});
+            for (let square of crossword.squares) {
+                square.color = SquareColor.BLACK;
+            }
+
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.ROTATIONAL} />);
+            const squares = screen.queryAllByTestId("inner-box");
+            await userEvent.click(squares[1]);
+
+            expect((squares[0] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+            expect((squares[1] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[2] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[3] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+        });
+
+        it('only changes the middle square when updating the middle square', async () => {
+            render(<TestCrosswordHolder crossword={createNewCrossword({width: 3, height: 3})}  editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.ROTATIONAL} />);
+            const squares = screen.queryAllByTestId("inner-box");
+            await userEvent.click(squares[4]);
+
+            expect((squares[0] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[1] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[2] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[3] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[4] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);  // Middle square
+            expect((squares[5] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[6] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[7] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[8] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        });
+    });
+
+    describe('Mirror Symmetry', () => {
+        it('changes the mirror opposite square to black when toggled black', async () => {
+            render(<TestCrosswordHolder crossword={createNewCrossword({width: 2, height: 2})}  editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.MIRROR} />);
+            const squares = screen.queryAllByTestId("inner-box");
+            await userEvent.click(squares[2]);
+
+            expect((squares[0] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[1] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[2] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+            expect((squares[3] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+        });
+
+        it('changes the mirror opposite square to white when toggled white', async () => {
+            const crossword = createNewCrossword({width: 2, height: 2});
+            for (let square of crossword.squares) {
+                square.color = SquareColor.BLACK;
+            }
+
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.MIRROR} />);
+            const squares = screen.queryAllByTestId("inner-box");
+            await userEvent.click(squares[1]);
+
+            expect((squares[0] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[1] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[2] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+            expect((squares[3] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+        });
+
+        it('only changes the middle square of a row when updating that square', async () => {
+            render(<TestCrosswordHolder crossword={createNewCrossword({width: 3, height: 1})}  editMode={EditMode.TOGGLE_BLACK} symmetryMode={SymmetryMode.ROTATIONAL} />);
+            const squares = screen.queryAllByTestId("inner-box");
+            await userEvent.click(squares[1]);
+
+            expect((squares[0] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((squares[1] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+            expect((squares[2] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        });
     });
 });

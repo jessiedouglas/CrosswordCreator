@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { EditMode } from './page_crossword_edit';
+import { EditMode, SymmetryMode } from './page_crossword_edit';
 import './crossword.css';
 import { createNewCrossword, Crossword, duplicateCrossword, Square, SquareColor } from '../models/crossword';
 
@@ -10,6 +10,7 @@ interface EditableCrosswordSettings {
     crossword: Crossword;
     setCrossword: Function;
     editMode: EditMode;
+    symmetryMode: SymmetryMode;
 }
 
 interface EditableSquareSettings {
@@ -56,13 +57,21 @@ function EditableSquare({index, square, editMode, updateSquare}: EditableSquareS
     );
 }
 
-export function EditableCrossword({crossword, setCrossword, editMode}: EditableCrosswordSettings) {
+export function EditableCrossword({crossword, setCrossword, editMode, symmetryMode}: EditableCrosswordSettings) {
     if (editMode == EditMode.UNSPECIFIED || editMode == undefined) {
         throw new Error("Unspecified EditMode");
     }
 
     const updateSquare = (index: number, square: Square) => {
         crossword.squares[index] = square;
+        if (symmetryMode == SymmetryMode.ROTATIONAL) {
+            const symmetricalSquare = crossword.squares[crossword.squares.length - index - 1];
+            symmetricalSquare.color = square.color;
+        } else if (symmetryMode == SymmetryMode.MIRROR) {
+            const column = index % crossword.dimensions.width;
+            const symmetricalIndex = index - column + crossword.dimensions.width - 1 - column;
+            crossword.squares[symmetricalIndex].color = square.color;
+        }
         setCrossword(duplicateCrossword(crossword));
     }
 

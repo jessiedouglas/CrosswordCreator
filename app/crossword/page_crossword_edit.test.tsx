@@ -26,13 +26,53 @@ describe('Initial state', () => {
         expect(modeToggleRadioButton.checked).toBe(true);
     });
 
+    it('starts with Rotational symmetry selected', () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword({height: 15, width: 15})} />);
+        const rotationalRadioButton: HTMLInputElement = screen.getByTestId('symmetry-rotational-button');
+
+        expect(rotationalRadioButton.checked).toBe(true);
+    });
+
     it('allows black squares to be selected', async () => {
         render(<TestCrosswordHolder crossword={createNewCrossword({height: 15, width: 15})} />);
         const squares = screen.queryAllByTestId("inner-box");
         expect((squares[0] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        expect((squares[224] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND); // Rotationally symmetric
         await userEvent.click(squares[0]);
         
         expect((squares[0] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+        expect((squares[224] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+    });
+});
+
+describe('After selecting mirror symmetry', () => {
+    it('toggles both the square and the mirror symmetric square', async () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword({height: 15, width: 15})} />);
+        const mirrorRadioButton: HTMLInputElement = screen.getByTestId('symmetry-mirror-button');
+        await userEvent.click(mirrorRadioButton);
+
+        const squares = screen.queryAllByTestId("inner-box");
+        expect((squares[0] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        expect((squares[14] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND); // Mirror symmetric
+        await userEvent.click(squares[0]);
+
+        expect((squares[0] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+        expect((squares[14] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+    });
+});
+
+describe('After selecting no symmetry', () => {
+    it('doesnt change any other squares when toggled', async () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword({height: 2, width: 2})} />);
+        const noSymmetryRadioButton: HTMLInputElement = screen.getByTestId('symmetry-none-button');
+        await userEvent.click(noSymmetryRadioButton);
+        const squares = screen.queryAllByTestId("inner-box");
+        await userEvent.click(squares[0]);
+
+        expect((squares[0] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+        expect((squares[1] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        expect((squares[2] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        expect((squares[3] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
     });
 });
 

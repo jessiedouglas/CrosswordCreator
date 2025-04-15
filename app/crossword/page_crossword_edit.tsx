@@ -13,11 +13,12 @@ interface PageCrosswordEditSettings {
 
 export function PageCrosswordEdit({crossword, setCrossword}: PageCrosswordEditSettings) {
     const [editMode, setEditMode] = useState(EditMode.TOGGLE_BLACK);
+    const [symmetryMode, setSymmetryMode] = useState(SymmetryMode.ROTATIONAL);
 
     return (
         <div className="flex w-full justify-evenly">
-            <EditableCrossword crossword={crossword} setCrossword={setCrossword} editMode={editMode} />
-            <CrosswordSettings editMode={editMode} setEditMode={setEditMode} />
+            <EditableCrossword crossword={crossword} setCrossword={setCrossword} editMode={editMode} symmetryMode={symmetryMode} />
+            <CrosswordSettings editMode={editMode} setEditMode={setEditMode} symmetryMode={symmetryMode} setSymmetryMode={setSymmetryMode} />
         </div>
     );
 }
@@ -26,4 +27,11 @@ export enum EditMode {
     UNSPECIFIED,
     TEXT,
     TOGGLE_BLACK
+}
+
+export enum SymmetryMode {
+    UNSPECIFIED,
+    ROTATIONAL,
+    MIRROR,
+    NONE
 }
