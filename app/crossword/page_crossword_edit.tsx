@@ -8,7 +8,7 @@ import { createNewCrossword, Crossword } from '../models/crossword';
 
 interface PageCrosswordEditSettings {
     crossword: Crossword;
-    setCrossword: Function;
+    setCrossword: (c: Crossword|null) => void;
 }
 
 export function PageCrosswordEdit({crossword, setCrossword}: PageCrosswordEditSettings) {

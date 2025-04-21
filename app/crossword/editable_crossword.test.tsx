@@ -16,9 +16,12 @@ const BLACK_BACKGROUND = "rgb(0, 0, 0)";
 
 /** A wrapper that uses state to trigger a rerender. */
 function TestCrosswordHolder({crossword, editMode, symmetryMode}: {crossword: Crossword, editMode: EditMode, symmetryMode: SymmetryMode}) {
-    const [xword, setXword] = useState(crossword)
+    function nullCrosswordInitializer(): Crossword|null {
+        return crossword;
+    }
+    const [xword, setXword] = useState(nullCrosswordInitializer);
     return (
-        <EditableCrossword crossword={xword} setCrossword={setXword} editMode={editMode} symmetryMode={symmetryMode} />
+        <EditableCrossword crossword={xword as Crossword} setCrossword={setXword} editMode={editMode} symmetryMode={symmetryMode} />
     )
 }
 
@@ -122,6 +125,36 @@ describe('Text Edit Mode', () => {
 
         expect((inputs[0] as HTMLInputElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
         expect((inputs[1] as HTMLInputElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+    });
+
+    describe('Auto-advance', () => {
+        it('advances to the next empty non-black square after entry', async () => {
+            const crossword = createNewCrossword(DIMENSIONS);
+            crossword.squares[1].color = SquareColor.BLACK;
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[0]);
+            await userEvent.keyboard('a');
+            await userEvent.keyboard('b');
+
+            expect((inputs[2] as HTMLInputElement).value).toBe('B');
+        });
+
+        it('backs up to the previous non-black square and removes the value on backspace', async () => {
+            const crossword = createNewCrossword(DIMENSIONS);
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[0]);
+            await userEvent.keyboard('a');
+            await userEvent.keyboard('b');
+            await userEvent.keyboard('[Backspace]');
+            await userEvent.keyboard('[Backspace]');
+
+            expect((inputs[0] as HTMLInputElement).value).toBe('');
+            expect((inputs[0] as HTMLInputElement).value).toBe('');
+        });
     });
 });
 

@@ -12,9 +12,12 @@ const BLACK_BACKGROUND = "rgb(0, 0, 0)";
 
 /** A wrapper that uses state to trigger a rerender. */
 function TestCrosswordHolder({crossword}: {crossword: Crossword}) {
-    const [xword, setXword] = useState(crossword)
+    function nullCrosswordInitializer(): Crossword|null {
+        return crossword;
+    }
+    const [xword, setXword] = useState(nullCrosswordInitializer);
     return (
-        <PageCrosswordEdit crossword={xword} setCrossword={setXword} />
+        <PageCrosswordEdit crossword={xword as Crossword} setCrossword={setXword} />
     )
 }
 

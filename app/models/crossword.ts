@@ -13,6 +13,7 @@ export interface Square {
     color: SquareColor;
     value: string;
     number: number|null;
+    active: boolean;
 }
 
 export class Crossword {
@@ -32,6 +33,7 @@ export class Crossword {
                     color: SquareColor.WHITE,
                     value: '',
                     number: null,
+                    active: false,
                 };
                 this.squares.push(square);
             }
@@ -95,6 +97,7 @@ function duplicateSquare(square: Square): Square {
     return {
         value: square.value,
         color: square.color,
-        number: square.number
+        number: square.number,
+        active: square.active
     };
 }
