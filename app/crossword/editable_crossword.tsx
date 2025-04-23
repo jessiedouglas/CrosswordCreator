@@ -20,9 +20,10 @@ interface EditableSquareSettings {
     editMode: EditMode;
     updateSquare: (i: number, s: Square) => void;
     handleBackspace: (i: number) => void;
+    activateSquare: (i: number) => void;
 }
 
-function EditableSquare({index, square, editMode, updateSquare, handleBackspace}: EditableSquareSettings) {
+function EditableSquare({index, square, editMode, updateSquare, handleBackspace, activateSquare}: EditableSquareSettings) {
     function onInsertText(e: React.FormEvent<HTMLInputElement>) {
         const newText = e.currentTarget.value;
         if (!square.value && newText) {
@@ -34,6 +35,12 @@ function EditableSquare({index, square, editMode, updateSquare, handleBackspace}
     function onBackspace(e: React.KeyboardEvent<HTMLInputElement>) {
         if (e.key == "Backspace") {
             handleBackspace(index);
+        }
+    }
+
+    function onFocus() {
+        if (!square.active) {
+            activateSquare(index);
         }
     }
 
@@ -56,11 +63,12 @@ function EditableSquare({index, square, editMode, updateSquare, handleBackspace}
     }, [square]);
 
     let content;
+    const textBackground = square.active ? "rgba(252, 247, 88, 0.2)" : "rgba(1, 1, 1, 0)";
     const style = {
-        backgroundColor: square.color == SquareColor.WHITE ? "rgba(1, 1, 1, 0)" : "rgba(0, 0, 0, 1)"
+        backgroundColor: square.color == SquareColor.BLACK ? "rgb(0, 0, 0)" : textBackground 
     };
     if (editMode == EditMode.TEXT) {
-        content = <input className="crossword-input" data-testid="crossword-input" value={square.value} style={style} disabled={square.color == SquareColor.BLACK} onInput={onInsertText} onKeyUp={onBackspace} ref={inputRef} />;
+        content = <input className="crossword-input" data-testid="crossword-input" value={square.value} style={style} disabled={square.color == SquareColor.BLACK} onInput={onInsertText} onFocus={onFocus} onKeyUp={onBackspace} ref={inputRef} />;
     } else {
         content = <div className="crossword-input size-full" data-testid="inner-box" style={style} onClick={onBoxToggle}>{square.value}</div>;
     }
@@ -111,9 +119,20 @@ export function EditableCrossword({crossword, setCrossword, editMode, symmetryMo
         setCrossword(duplicateCrossword(crossword));
     }
 
+    const activateSquare = (index: number) => {
+        for (let i=0; i<crossword.squares.length; i++) {
+            if (index == i) {
+                crossword.squares[i].active = true;
+            } else {
+                crossword.squares[i].active = false;
+            }
+        }
+        setCrossword(duplicateCrossword(crossword));
+    }
+
     const squareElements = [];
     for (let i=0; i<crossword.squares.length; i++) {
-        squareElements.push(<EditableSquare index={i} square={crossword.squares[i]} editMode={editMode} updateSquare={updateSquare} handleBackspace={handleBackspace} key={`square-${i}`}></EditableSquare>);
+        squareElements.push(<EditableSquare index={i} square={crossword.squares[i]} editMode={editMode} updateSquare={updateSquare} handleBackspace={handleBackspace} activateSquare={activateSquare} key={`square-${i}`}></EditableSquare>);
     }
     const style = {width: `${crossword.dimensions.width * 40}px`}
     return (

@@ -9,6 +9,7 @@ import preview from 'jest-preview';
 
 const WHITE_BACKGROUND = "rgba(1, 1, 1, 0)";
 const BLACK_BACKGROUND = "rgb(0, 0, 0)";
+const YELLOW_BACKGROUND = "rgba(252, 247, 88, 0.2)";
 
 /** A wrapper that uses state to trigger a rerender. */
 function TestCrosswordHolder({crossword}: {crossword: Crossword}) {
@@ -90,7 +91,7 @@ describe('After selecting text edit mode', () => {
         expect((inner as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
         await userEvent.click(inner);
 
-        expect((inner as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        expect((inner as HTMLElement).style.backgroundColor).toBe(YELLOW_BACKGROUND);
     });
 
     it('allows text to be input', async () => {

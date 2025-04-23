@@ -13,6 +13,7 @@ const DIMENSIONS: Dimensions = {
 };
 const WHITE_BACKGROUND = "rgba(1, 1, 1, 0)";
 const BLACK_BACKGROUND = "rgb(0, 0, 0)";
+const YELLOW_BACKGROUND = "rgba(252, 247, 88, 0.2)";
 
 /** A wrapper that uses state to trigger a rerender. */
 function TestCrosswordHolder({crossword, editMode, symmetryMode}: {crossword: Crossword, editMode: EditMode, symmetryMode: SymmetryMode}) {
@@ -127,6 +128,30 @@ describe('Text Edit Mode', () => {
         expect((inputs[1] as HTMLInputElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
     });
 
+    describe('On focus', () => {
+        it('renders the active square yellow', async () => {
+            const crossword = createNewCrossword(DIMENSIONS);
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+            await userEvent.click(inputs[0]);
+
+            expect(inputs[0].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('changes the background back to white after a new square is focused on', async () => {
+            const crossword = createNewCrossword(DIMENSIONS);
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[0]);
+            expect(inputs[0].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.click(inputs[4]);
+            expect(inputs[0].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+    });
+
     describe('Auto-advance', () => {
         it('advances to the next empty non-black square after entry', async () => {
             const crossword = createNewCrossword(DIMENSIONS);
@@ -141,6 +166,19 @@ describe('Text Edit Mode', () => {
             expect((inputs[2] as HTMLInputElement).value).toBe('B');
         });
 
+        it('renders the new active square as yellow', async () => {
+            const crossword = createNewCrossword(DIMENSIONS);
+            crossword.squares[1].color = SquareColor.BLACK;
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[0]);
+            await userEvent.keyboard('a');
+
+            expect(inputs[0].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(inputs[2].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
         it('backs up to the previous non-black square and removes the value on backspace', async () => {
             const crossword = createNewCrossword(DIMENSIONS);
             render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
@@ -153,7 +191,19 @@ describe('Text Edit Mode', () => {
             await userEvent.keyboard('[Backspace]');
 
             expect((inputs[0] as HTMLInputElement).value).toBe('');
-            expect((inputs[0] as HTMLInputElement).value).toBe('');
+            expect((inputs[1] as HTMLInputElement).value).toBe('');
+        });
+
+        it('renders the backed-up active square as yellow', async () => {
+            const crossword = createNewCrossword(DIMENSIONS);
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[2]);
+            await userEvent.keyboard('[Backspace]');
+
+            expect(inputs[2].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(inputs[1].style.backgroundColor).toBe(YELLOW_BACKGROUND);
         });
     });
 });
