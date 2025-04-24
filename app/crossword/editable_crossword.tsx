@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { EditMode, SymmetryMode } from './page_crossword_edit';
 import './crossword.css';
-import { getNextNonBlackEmptySquare, getPreviousNonBlackSquare } from '../helpers/square_navigators';
+import { getActiveWordSquares, getNextNonBlackEmptySquare, getPreviousNonBlackSquare } from '../helpers/square_navigators';
 import { Crossword, duplicateCrossword, Square, SquareColor } from '../models/crossword';
 
 
@@ -62,11 +62,22 @@ function EditableSquare({index, square, editMode, updateSquare, handleBackspace,
         }
     }, [square]);
 
+    let backgroundColor;
+    if (square.color == SquareColor.BLACK) {
+        // black
+        backgroundColor = "rgb(0, 0, 0)";
+    } else if (square.active) {
+        // light yellow
+        backgroundColor = "rgba(252, 247, 88, 0.2)";
+    } else if (square.inActiveWord) {
+        // light blue
+        backgroundColor = "rgba(166, 246, 247, 0.2)";
+    } else {
+        // white
+        backgroundColor = "rgba(1, 1, 1, 0)";
+    }
     let content;
-    const textBackground = square.active ? "rgba(252, 247, 88, 0.2)" : "rgba(1, 1, 1, 0)";
-    const style = {
-        backgroundColor: square.color == SquareColor.BLACK ? "rgb(0, 0, 0)" : textBackground 
-    };
+    const style = {backgroundColor};
     if (editMode == EditMode.TEXT) {
         content = <input className="crossword-input" data-testid="crossword-input" value={square.value} style={style} disabled={square.color == SquareColor.BLACK} onInput={onInsertText} onFocus={onFocus} onKeyUp={onBackspace} ref={inputRef} />;
     } else {
@@ -105,6 +116,7 @@ export function EditableCrossword({crossword, setCrossword, editMode, symmetryMo
             square.active = false;
             const nextSquare = getNextNonBlackEmptySquare(index, crossword);
             nextSquare.active = true;
+            markActiveWord();
         } 
         setCrossword(duplicateCrossword(crossword));
     }
@@ -116,6 +128,7 @@ export function EditableCrossword({crossword, setCrossword, editMode, symmetryMo
         const prevSquare = getPreviousNonBlackSquare(index, crossword);
         prevSquare.value = '';
         prevSquare.active = true;
+        markActiveWord();
         setCrossword(duplicateCrossword(crossword));
     }
 
@@ -127,7 +140,19 @@ export function EditableCrossword({crossword, setCrossword, editMode, symmetryMo
                 crossword.squares[i].active = false;
             }
         }
+        markActiveWord();
         setCrossword(duplicateCrossword(crossword));
+    }
+
+    const markActiveWord = () => {
+        // Clear current active marks
+        for (let square of crossword.squares) {
+            square.inActiveWord = false;
+        }
+        const activeWordSquares = getActiveWordSquares(crossword);
+        for (let activeWordSquare of activeWordSquares) {
+            activeWordSquare.inActiveWord = true;
+        }
     }
 
     const squareElements = [];

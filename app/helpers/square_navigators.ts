@@ -54,3 +54,72 @@ export function getNextNonBlackEmptySquare(startingIndex: number, crossword: Cro
     }
     return nextSquare;
 };
+
+/**
+ * @param crossword 
+ * @returns A list of squares in the active word as indicated by the 'active' 
+ * property. If there is no active word, returns an empty list.
+ */
+export function getActiveWordSquares(crossword: Crossword): Square[] {
+    const activeSquareIndex = crossword.squares.findIndex((s) => s.active);
+    if (activeSquareIndex == -1) {
+        // Not found
+        return [];
+    }
+    // Find index of first square
+    let currentIndex = activeSquareIndex;
+    let searching = true;
+    while (searching) {
+        const squareLeft = getSquareLeft(currentIndex, crossword);
+        if (!squareLeft || squareLeft.color == SquareColor.BLACK) {
+            searching = false;
+        } else {
+            currentIndex--;
+        }
+    }
+
+    const activeWordSquares = [crossword.squares[currentIndex]];
+    searching = true;
+    while (searching) {
+        const squareRight = getSquareRight(currentIndex, crossword);
+        if (!squareRight || squareRight.color == SquareColor.BLACK) {
+            searching = false;
+        } else {
+            activeWordSquares.push(squareRight);
+            currentIndex++;
+        }
+    }
+    return activeWordSquares;
+}
+
+/**
+ * @param index 
+ * @param crossword 
+ * @returns The square to the left of the given index, or null if the square is
+ * on the left edge of the crossword.
+ */
+function getSquareLeft(index: number, crossword: Crossword): Square|null {
+    if (index < 0 || index >= crossword.squares.length) {
+        throw new Error('Index out of bounds');
+    }
+    if (index % crossword.dimensions.width == 0) {
+        return null;
+    }
+    return crossword.squares[index - 1];
+}
+
+/**
+ * @param index 
+ * @param crossword 
+ * @returns The square to the right of the given index, or null if the square is
+ * on the right edge of the crossword.
+ */
+function getSquareRight(index: number, crossword: Crossword): Square|null {
+    if (index < 0 || index >= crossword.squares.length) {
+        throw new Error('Index out of bounds');
+    }
+    if (index % crossword.dimensions.width == crossword.dimensions.width - 1) {
+        return null;
+    }
+    return crossword.squares[index + 1];
+}

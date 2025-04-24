@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
-import { createNewCrossword, SquareColor } from '../models/crossword';
-import { getPreviousNonBlackSquare, getNextNonBlackEmptySquare } from './square_navigators';
+import { createNewCrossword, Crossword, SquareColor } from '../models/crossword';
+import { getPreviousNonBlackSquare, getNextNonBlackEmptySquare, getActiveWordSquares } from './square_navigators';
 
 describe('getPreviousNonBlackSquare', () => {
     it('returns the first square if the index is 0', () => {
@@ -112,3 +112,71 @@ describe('getNextNonBlackEmptySquare', () => {
         expect(() => getNextNonBlackEmptySquare(-1, crossword)).toThrow();
     });
 });
+
+describe('getActiveWordSquares', () => {
+    it('returns an empty list if no squares are marked active', () => {
+        const crossword = createNewCrossword({width: 5, height: 3});
+
+        expect(getActiveWordSquares(crossword)).toHaveLength(0);
+    });
+
+    it('returns the active square and all squares to the right if the active is the first square', () => {
+        const crossword = createNewCrossword({width: 5, height: 3});
+        populateIndicesAsValues(crossword);
+        crossword.squares[6].color = SquareColor.BLACK;
+        crossword.squares[7].active = true;
+
+        const activeWordSquares = getActiveWordSquares(crossword);
+        expect(activeWordSquares).toHaveLength(3);
+        expect(activeWordSquares[0].value).toBe('7');
+        expect(activeWordSquares[1].value).toBe('8');
+        expect(activeWordSquares[2].value).toBe('9');
+    });
+
+    it('returns the active square and all squares to the left if the active is the last square', () => {
+        const crossword = createNewCrossword({width: 5, height: 3});
+        populateIndicesAsValues(crossword);
+        crossword.squares[6].color = SquareColor.BLACK;
+        crossword.squares[9].active = true;
+
+        const activeWordSquares = getActiveWordSquares(crossword);
+        expect(activeWordSquares).toHaveLength(3);
+        expect(activeWordSquares[0].value).toBe('7');
+        expect(activeWordSquares[1].value).toBe('8');
+        expect(activeWordSquares[2].value).toBe('9');
+    });
+
+    it('returns all the way to the ends of the row if there are no black squares', () => {
+        const crossword = createNewCrossword({width: 5, height: 3});
+        populateIndicesAsValues(crossword);
+        crossword.squares[7].active = true;
+
+        const activeWordSquares = getActiveWordSquares(crossword);
+        expect(activeWordSquares).toHaveLength(5);
+        expect(activeWordSquares[0].value).toBe('5');
+        expect(activeWordSquares[1].value).toBe('6');
+        expect(activeWordSquares[2].value).toBe('7');
+        expect(activeWordSquares[3].value).toBe('8');
+        expect(activeWordSquares[4].value).toBe('9');
+    });
+
+    it('returns all the way to black squares if there are black squares before the ends of the row', () => {
+        const crossword = createNewCrossword({width: 5, height: 3});
+        populateIndicesAsValues(crossword);
+        crossword.squares[5].color = SquareColor.BLACK;
+        crossword.squares[9].color = SquareColor.BLACK;
+        crossword.squares[7].active = true;
+
+        const activeWordSquares = getActiveWordSquares(crossword);
+        expect(activeWordSquares).toHaveLength(3);
+        expect(activeWordSquares[0].value).toBe('6');
+        expect(activeWordSquares[1].value).toBe('7');
+        expect(activeWordSquares[2].value).toBe('8');
+    });
+});
+
+function populateIndicesAsValues(crossword: Crossword): void {
+    for (let i=0; i<crossword.squares.length; i++) {
+        crossword.squares[i].value = String(i);
+    }
+}

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import './crossword.css';
 import { EditableCrossword } from './editable_crossword';
 import { CrosswordSettings } from './crossword_settings';
-import { createNewCrossword, Crossword } from '../models/crossword';
+import { createNewCrossword, Crossword, duplicateCrossword } from '../models/crossword';
 
 interface PageCrosswordEditSettings {
     crossword: Crossword;
@@ -15,10 +15,20 @@ export function PageCrosswordEdit({crossword, setCrossword}: PageCrosswordEditSe
     const [editMode, setEditMode] = useState(EditMode.TOGGLE_BLACK);
     const [symmetryMode, setSymmetryMode] = useState(SymmetryMode.ROTATIONAL);
 
+    const setEditModeAndResetActiveSquare = (editMode: EditMode): void => {
+        // Clear active and inActiveWord settings
+        for (let square of crossword.squares) {
+            square.active = false;
+            square.inActiveWord = false;
+        }
+        setCrossword(duplicateCrossword(crossword));
+        setEditMode(editMode);
+    }
+
     return (
         <div className="flex w-full justify-evenly">
             <EditableCrossword crossword={crossword} setCrossword={setCrossword} editMode={editMode} symmetryMode={symmetryMode} />
-            <CrosswordSettings editMode={editMode} setEditMode={setEditMode} symmetryMode={symmetryMode} setSymmetryMode={setSymmetryMode} />
+            <CrosswordSettings editMode={editMode} setEditMode={setEditModeAndResetActiveSquare} symmetryMode={symmetryMode} setSymmetryMode={setSymmetryMode} />
         </div>
     );
 }
