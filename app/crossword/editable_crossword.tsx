@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { EditMode, SymmetryMode } from './page_crossword_edit';
 import './crossword.css';
-import { getActiveWordSquares, getNextNonBlackEmptySquare, getPreviousNonBlackSquare } from '../helpers/square_navigators';
+import { getActiveWordSquares, getNextNonBlackEmptySquare, getPreviousNonBlackSquare, getNextNonBlackSquareAbove, getNextNonBlackSquareBelow, getNextNonBlackSquareLeft, getNextNonBlackSquareRight } from '../helpers/square_navigators';
 import { Crossword, duplicateCrossword, Square, SquareColor } from '../models/crossword';
 
 
@@ -21,9 +21,12 @@ interface EditableSquareSettings {
     updateSquare: (i: number, s: Square) => void;
     handleBackspace: (i: number) => void;
     activateSquare: (i: number) => void;
+    handleArrowNavigation: (i: number, key: string) => void;
 }
 
-function EditableSquare({index, square, editMode, updateSquare, handleBackspace, activateSquare}: EditableSquareSettings) {
+const ARROW_KEYS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]);
+
+function EditableSquare({index, square, editMode, updateSquare, handleBackspace, activateSquare, handleArrowNavigation}: EditableSquareSettings) {
     function onInsertText(e: React.FormEvent<HTMLInputElement>) {
         const newText = e.currentTarget.value;
         if (!square.value && newText) {
@@ -32,9 +35,11 @@ function EditableSquare({index, square, editMode, updateSquare, handleBackspace,
         }
     }
 
-    function onBackspace(e: React.KeyboardEvent<HTMLInputElement>) {
+    function onKeyUp(e: React.KeyboardEvent<HTMLInputElement>) {
         if (e.key == "Backspace") {
             handleBackspace(index);
+        } else if (ARROW_KEYS.has(e.key)) {
+            handleArrowNavigation(index, e.key);
         }
     }
 
@@ -79,7 +84,7 @@ function EditableSquare({index, square, editMode, updateSquare, handleBackspace,
     let content;
     const style = {backgroundColor};
     if (editMode == EditMode.TEXT) {
-        content = <input className="crossword-input" data-testid="crossword-input" value={square.value} style={style} disabled={square.color == SquareColor.BLACK} onInput={onInsertText} onFocus={onFocus} onKeyUp={onBackspace} ref={inputRef} />;
+        content = <input className="crossword-input" data-testid="crossword-input" value={square.value} style={style} disabled={square.color == SquareColor.BLACK} onInput={onInsertText} onFocus={onFocus} onKeyUp={onKeyUp} ref={inputRef} />;
     } else {
         content = <div className="crossword-input size-full" data-testid="inner-box" style={style} onClick={onBoxToggle}>{square.value}</div>;
     }
@@ -132,6 +137,29 @@ export function EditableCrossword({crossword, setCrossword, editMode, symmetryMo
         setCrossword(duplicateCrossword(crossword));
     }
 
+    const handleArrowNavigation = (index: number, key: string): void => {
+        if (!ARROW_KEYS.has(key)) {
+            throw new Error(`Key ${key} not valid for navigation`);
+        }
+
+        let nextSquare: Square|null;
+        if (key == "ArrowUp") {
+            nextSquare = getNextNonBlackSquareAbove(index, crossword);
+        } else if (key == "ArrowDown") {
+            nextSquare = getNextNonBlackSquareBelow(index, crossword);
+        } else if (key == "ArrowLeft") {
+            nextSquare = getNextNonBlackSquareLeft(index, crossword);
+        } else {
+            nextSquare = getNextNonBlackSquareRight(index, crossword);
+        }
+        if (nextSquare) {
+            crossword.squares[index].active = false;
+            nextSquare.active = true;
+        }
+        markActiveWord();
+        setCrossword(duplicateCrossword(crossword));
+    };
+
     const activateSquare = (index: number) => {
         for (let i=0; i<crossword.squares.length; i++) {
             if (index == i) {
@@ -157,7 +185,7 @@ export function EditableCrossword({crossword, setCrossword, editMode, symmetryMo
 
     const squareElements = [];
     for (let i=0; i<crossword.squares.length; i++) {
-        squareElements.push(<EditableSquare index={i} square={crossword.squares[i]} editMode={editMode} updateSquare={updateSquare} handleBackspace={handleBackspace} activateSquare={activateSquare} key={`square-${i}`}></EditableSquare>);
+        squareElements.push(<EditableSquare index={i} square={crossword.squares[i]} editMode={editMode} updateSquare={updateSquare} handleBackspace={handleBackspace} activateSquare={activateSquare} handleArrowNavigation={handleArrowNavigation} key={`square-${i}`}></EditableSquare>);
     }
     const style = {width: `${crossword.dimensions.width * 40}px`}
     return (

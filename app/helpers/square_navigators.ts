@@ -94,6 +94,70 @@ export function getActiveWordSquares(crossword: Crossword): Square[] {
 
 /**
  * @param index 
+ * @param crossword
+ * @returns The next square left in the same row that is not black. If none
+ * exist, returns null.
+ */
+export function getNextNonBlackSquareLeft(index: number, crossword: Crossword): Square|null {
+    let nextLeftSquare = getSquareLeft(index, crossword);
+    let currentIndex = index;
+    while (nextLeftSquare && nextLeftSquare.color == SquareColor.BLACK) {
+        currentIndex--;
+        nextLeftSquare = getSquareLeft(currentIndex, crossword);
+    }
+    return nextLeftSquare;
+}
+
+/**
+ * @param index 
+ * @param crossword
+ * @returns The next square right in the same row that is not black. If none
+ * exist, returns null.
+ */
+export function getNextNonBlackSquareRight(index: number, crossword: Crossword): Square|null {
+    let nextRightSquare = getSquareRight(index, crossword);
+    let currentIndex = index;
+    while (nextRightSquare && nextRightSquare.color == SquareColor.BLACK) {
+        currentIndex++;
+        nextRightSquare = getSquareRight(currentIndex, crossword);
+    }
+    return nextRightSquare;
+}
+
+/**
+ * @param index 
+ * @param crossword
+ * @returns The next square above in the same column that is not black. If none
+ * exist, returns null.
+ */
+export function getNextNonBlackSquareAbove(index: number, crossword: Crossword): Square|null {
+    let nextAboveSquare = getSquareAbove(index, crossword);
+    let currentIndex = index;
+    while (nextAboveSquare && nextAboveSquare.color == SquareColor.BLACK) {
+        currentIndex -= crossword.dimensions.width;
+        nextAboveSquare = getSquareAbove(currentIndex, crossword);
+    }
+    return nextAboveSquare;
+}
+
+/**
+ * @param index 
+ * @param crossword
+ * @returns The next square below in the same column that is not black. If none
+ * exist, returns null.
+ */
+export function getNextNonBlackSquareBelow(index: number, crossword: Crossword): Square|null {
+    let nextBelowSquare = getSquareBelow(index, crossword);
+    let currentIndex = index;
+    while (nextBelowSquare && nextBelowSquare.color == SquareColor.BLACK) {
+        currentIndex += crossword.dimensions.width;
+        nextBelowSquare = getSquareBelow(currentIndex, crossword);
+    }
+    return nextBelowSquare;
+}
+
+/**
+ * @param index 
  * @param crossword 
  * @returns The square to the left of the given index, or null if the square is
  * on the left edge of the crossword.
@@ -122,4 +186,36 @@ function getSquareRight(index: number, crossword: Crossword): Square|null {
         return null;
     }
     return crossword.squares[index + 1];
+}
+
+/**
+ * @param index 
+ * @param crossword 
+ * @returns The square above the given index, or null if the square is
+ * on the top edge of the crossword.
+ */
+function getSquareAbove(index: number, crossword: Crossword): Square|null {
+    if (index < 0 || index >= crossword.squares.length) {
+        throw new Error('Index out of bounds');
+    }
+    if (index < crossword.dimensions.width) {
+        return null;
+    }
+    return crossword.squares[index - crossword.dimensions.width];
+}
+
+/**
+ * @param index 
+ * @param crossword 
+ * @returns The square below the given index, or null if the square is
+ * on the bottom edge of the crossword.
+ */
+function getSquareBelow(index: number, crossword: Crossword): Square|null {
+    if (index < 0 || index >= crossword.squares.length) {
+        throw new Error('Index out of bounds');
+    }
+    if (index >= (crossword.dimensions.width * (crossword.dimensions.height - 1))) {
+        return null;
+    }
+    return crossword.squares[index + crossword.dimensions.width];
 }

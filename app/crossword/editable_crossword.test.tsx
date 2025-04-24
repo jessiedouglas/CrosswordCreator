@@ -255,6 +255,232 @@ describe('Text Edit Mode', () => {
             expect(inputs[0].style.backgroundColor).toBe(BLUE_BACKGROUND);
         });
     });
+
+    describe('Arrow navigation', () => {
+        it('does nothing on up arrow if already in the top row', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+            
+            await userEvent.click(inputs[1]);
+            expect(inputs[1].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowUp]');
+
+            expect(inputs[1].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('does nothing on up arrow if all squares above are black', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            crossword.squares[1].color = SquareColor.BLACK;
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[4]);
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowUp]');
+
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('moves the focus up on up arrow if the above square isnt black', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[4]);
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowUp]');
+
+            expect(inputs[4].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(inputs[1].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('skips black squares on up arrow', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            crossword.squares[4].color = SquareColor.BLACK;
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[7]);
+            expect(inputs[7].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowUp]');
+
+            expect(inputs[7].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(inputs[1].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('does nothing on down arrow if already in the bottom row', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[7]);
+            expect(inputs[7].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowDown]');
+
+            expect(inputs[7].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('does nothing on down arrow if all squares below are black', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            crossword.squares[7].color = SquareColor.BLACK;
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[4]);
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowDown]');
+
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('moves the focus down one on down arrow if the square below isnt black', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[4]);
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowDown]');
+
+            expect(inputs[4].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(inputs[7].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('skips black squares on down arrow', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            crossword.squares[4].color = SquareColor.BLACK;
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[1]);
+            expect(inputs[1].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowDown]');
+
+            expect(inputs[1].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(inputs[7].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('does nothing on right arrow if already in the rightmost column', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[5]);
+            expect(inputs[5].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowRight]');
+
+            expect(inputs[5].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('does nothing on right arrow if all squares to the right are black', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            crossword.squares[5].color = SquareColor.BLACK;
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[4]);
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowRight]');
+
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('moves the focus right on right arrow if the square to the right isnt black', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[4]);
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowRight]');
+
+            expect(inputs[4].style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect(inputs[5].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('skips black squares on right arrow', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            crossword.squares[4].color = SquareColor.BLACK;
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[3]);
+            expect(inputs[3].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowRight]');
+
+            expect(inputs[3].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(inputs[5].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('does nothing on left arrow if already in the leftmost column', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[3]);
+            expect(inputs[3].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowLeft]');
+
+            expect(inputs[3].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('does nothing on left arrow if all squares to the left are black', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            crossword.squares[3].color = SquareColor.BLACK;
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[4]);
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowLeft]');
+
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('moves the focus left on left arrow if the square to the left isnt black', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[4]);
+            expect(inputs[4].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowLeft]');
+
+            expect(inputs[4].style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect(inputs[3].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+
+        it('skips black squares on left arrow', async () => {
+            const crossword = createNewCrossword({height: 3, width: 3});
+            crossword.squares[4].color = SquareColor.BLACK;
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[5]);
+            expect(inputs[5].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+
+            await userEvent.keyboard('[ArrowLeft]');
+
+            expect(inputs[5].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(inputs[3].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        });
+    });
 });
 
 describe('Black Toggle Mode', () => {
