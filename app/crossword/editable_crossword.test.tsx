@@ -216,7 +216,24 @@ describe('Text Edit Mode', () => {
             expect(inputs[4].style.backgroundColor).toBe(BLUE_BACKGROUND);
         });
 
-        it('backs up to the previous non-black square and removes the value on backspace', async () => {
+        it('stays focused on the current square and deletes the value if the current square has a value', async () => {
+            const crossword = createNewCrossword(DIMENSIONS);
+            crossword.squares[0].value = 'A';
+            crossword.squares[1].value = 'B';
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[1]);
+            expect(inputs[1].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+            await userEvent.keyboard('[Backspace]');
+
+            expect(inputs[1].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+            expect((inputs[1] as HTMLInputElement).value).toBe('');
+            expect(inputs[0].style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect((inputs[0] as HTMLInputElement).value).toBe('A');
+        });
+
+        it('backs up to the previous non-black square and removes the value on backspace if the current square doesnt have a value', async () => {
             const crossword = createNewCrossword(DIMENSIONS);
             render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
             const inputs = screen.queryAllByTestId("crossword-input");
@@ -253,6 +270,37 @@ describe('Text Edit Mode', () => {
             await userEvent.keyboard('[Backspace]');
 
             expect(inputs[0].style.backgroundColor).toBe(BLUE_BACKGROUND);
+        });
+
+        it('deletes the values from the end on typing to the last square and then backspacing', async () => {
+            const crossword = createNewCrossword({height: 2, width: 4});
+            crossword.squares[7].color = SquareColor.BLACK;
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+            await userEvent.click(inputs[4]);
+            await userEvent.keyboard('a');
+            await userEvent.keyboard('b');
+            await userEvent.keyboard('c');
+            await userEvent.keyboard('[Backspace]');
+            await userEvent.keyboard('[Backspace]');
+
+            expect((inputs[4] as HTMLInputElement).value).toBe('A');
+            expect((inputs[5] as HTMLInputElement).value).toBe('');
+            expect((inputs[6] as HTMLInputElement).value).toBe('');
+        });
+
+        it('only backs up one non-black square and doesnt change values on backspace if there arent any values in the concerned squares', async () => {
+            const crossword = createNewCrossword(DIMENSIONS);
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[1]);
+            await userEvent.keyboard('[Backspace]');
+
+            expect((inputs[0] as HTMLInputElement).value).toBe('');
+            expect(inputs[0].style.backgroundColor).toBe(YELLOW_BACKGROUND);
+            expect((inputs[1] as HTMLInputElement).value).toBe('');
+            expect(inputs[1].style.backgroundColor).toBe(BLUE_BACKGROUND);
         });
     });
 

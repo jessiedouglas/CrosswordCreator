@@ -128,12 +128,16 @@ export function EditableCrossword({crossword, setCrossword, editMode, symmetryMo
 
     const handleBackspace = (index: number) => {
         const square = crossword.squares[index];
-        square.active = false;
-        // Value deleted; auto-advance backward for easy multi-deletion
-        const prevSquare = getPreviousNonBlackSquare(InputDirection.ACROSS, index, crossword);
-        prevSquare.value = '';
-        prevSquare.active = true;
-        markActiveWord();
+        if (square.value) {
+            square.value = '';
+        } else {
+            square.active = false;
+            // Value deleted; auto-advance backward for easy multi-deletion
+            const prevSquare = getPreviousNonBlackSquare(InputDirection.ACROSS, index, crossword);
+            prevSquare.value = '';
+            prevSquare.active = true;
+            markActiveWord();
+        }
         setCrossword(duplicateCrossword(crossword));
     }
 
