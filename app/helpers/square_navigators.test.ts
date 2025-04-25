@@ -1,115 +1,281 @@
 import { describe, expect, it } from '@jest/globals';
-import { createNewCrossword, Crossword, SquareColor } from '../models/crossword';
-import { getPreviousNonBlackSquare, getNextNonBlackEmptySquare, getActiveWordSquares, getNextNonBlackSquareAbove, getNextNonBlackSquareBelow, getNextNonBlackSquareLeft, getNextNonBlackSquareRight } from './square_navigators';
+import { createNewCrossword, Crossword, duplicateCrossword, SquareColor } from '../models/crossword';
+import { getPreviousNonBlackSquare, getNextNonBlackEmptySquare, getActiveWordSquares, getNextNonBlackSquareAbove, getNextNonBlackSquareBelow, getNextNonBlackSquareLeft, getNextNonBlackSquareRight, InputDirection } from './square_navigators';
 
 describe('getPreviousNonBlackSquare', () => {
-    it('returns the first square if the index is 0', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
-        const square = getPreviousNonBlackSquare(0, crossword);
-
-        expect(square.number).toBe(1);
+    describe('Across', () => {
+        it('returns the first square if the index is 0', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            const square = getPreviousNonBlackSquare(InputDirection.ACROSS, 0, crossword);
+    
+            expect(square.number).toBe(1);
+        });
+    
+        it('returns the previous square if the previous square is non-black', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            const square = getPreviousNonBlackSquare(InputDirection.ACROSS, 1, crossword);
+    
+            expect(square.number).toBe(1);
+        });
+    
+        it('returns several squares back if the previous squares were black', () => {
+            let crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[1].color = SquareColor.BLACK;
+            crossword.squares[2].color = SquareColor.BLACK;
+            crossword = duplicateCrossword(crossword); // Redo numbers
+            const square = getPreviousNonBlackSquare(InputDirection.ACROSS, 3, crossword);
+    
+            expect(square.number).toBe(1);
+        });
+    
+        it('returns original square if there are only black squares before', () => {
+            let crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[0].color = SquareColor.BLACK;
+            crossword.squares[1].color = SquareColor.BLACK;
+            crossword.squares[2].color = SquareColor.BLACK;
+            crossword = duplicateCrossword(crossword);  // Redo numbers
+            const square = getPreviousNonBlackSquare(InputDirection.ACROSS, 3, crossword);
+    
+            expect(square.number).toBe(1);
+        });
+    
+        it('throws an error if the index is too large', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+    
+            expect(() => getPreviousNonBlackSquare(InputDirection.ACROSS, 10, crossword)).toThrow();
+        });
+    
+        it('throws an error if the index is too small', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+    
+            expect(() => getPreviousNonBlackSquare(InputDirection.ACROSS, -1, crossword)).toThrow();
+        });
     });
 
-    it('returns the previous square if the previous square is non-black', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
-        const square = getPreviousNonBlackSquare(1, crossword);
+    describe('Down', () => {
+        it('returns the previous square in the word if there is one', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            const square = getPreviousNonBlackSquare(InputDirection.DOWN, 4, crossword);
 
-        expect(square.number).toBe(1);
-    });
+            expect(square.number).toBe(2);
+        });
 
-    it('returns several squares back if the previous squares were black', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
-        crossword.squares[1].color = SquareColor.BLACK;
-        crossword.squares[2].color = SquareColor.BLACK;
-        const square = getPreviousNonBlackSquare(3, crossword);
+        it('returns last square of the previous word in the same row if the first square is the first square of a word', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            const square = getPreviousNonBlackSquare(InputDirection.DOWN, 1, crossword);
 
-        expect(square.number).toBe(1);
-    });
+            expect(square.number).toBe(5);
+        });
 
-    it('returns original square if there are only black squares before', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
-        crossword.squares[0].color = SquareColor.BLACK;
-        crossword.squares[1].color = SquareColor.BLACK;
-        crossword.squares[2].color = SquareColor.BLACK;
-        const square = getPreviousNonBlackSquare(3, crossword);
+        it('returns last square of the last word in an upper row if the first square is the first square of the first word in a row', () => {
+            let crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[0].color = SquareColor.BLACK;
+            crossword.squares[3].color = SquareColor.BLACK;
+            populateIndicesAsValues(crossword);
+            crossword = duplicateCrossword(crossword);  // Redo numbering
+            const square = getPreviousNonBlackSquare(InputDirection.DOWN, 6, crossword);
 
-        expect(square.number).toBe(4);
-    });
+            expect(square.value).toBe('8');
+        });
 
-    it('throws an error if the index is too large', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
+        it('returns the original square if the index is 0', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            const square = getPreviousNonBlackSquare(InputDirection.DOWN, 0, crossword);
 
-        expect(() => getPreviousNonBlackSquare(10, crossword)).toThrow();
-    });
+            expect(square.number).toBe(1);
+        });
 
-    it('throws an error if the index is too small', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
+        it('returns the original square if original square is the first non-black square', () => {
+            let crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[0].color = SquareColor.BLACK;
+            crossword.squares[1].color = SquareColor.BLACK;
+            crossword = duplicateCrossword(crossword);  // Redo numbering
+            const square = getPreviousNonBlackSquare(InputDirection.DOWN, 2, crossword);
 
-        expect(() => getPreviousNonBlackSquare(-1, crossword)).toThrow();
+            expect(square.number).toBe(1);
+        });
+
+        it('throws an error if the index is too large', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+    
+            expect(() => getPreviousNonBlackSquare(InputDirection.DOWN, 10, crossword)).toThrow();
+        });
+    
+        it('throws an error if the index is too small', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+    
+            expect(() => getPreviousNonBlackSquare(InputDirection.DOWN, -1, crossword)).toThrow();
+        });
     });
 });
 
 describe('getNextNonBlackEmptySquare', () => {
-    it('returns the last square if the index is the last entry', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
-        let counter = 0;
-        for (let s of crossword.squares) {
-            s.value = String(counter);
-            counter++;
-        }
-        const square = getNextNonBlackEmptySquare(8, crossword);
-
-        expect(square.value).toBe('8');
+    describe('Across', () => {
+        it('returns the last square if the index is the last entry', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            populateIndicesAsValues(crossword);
+            const square = getNextNonBlackEmptySquare(InputDirection.ACROSS, 8, crossword);
+    
+            expect(square.value).toBe('8');
+        });
+    
+        it('returns the original square if the index is the last non-black square', () => {
+            let crossword = createNewCrossword({width: 3, height: 3});
+            populateIndicesAsValues(crossword);
+            crossword.squares[8].color = SquareColor.BLACK;
+            crossword = duplicateCrossword(crossword);  // Redo numbering
+            const square = getNextNonBlackEmptySquare(InputDirection.ACROSS, 7, crossword);
+    
+            expect(square.value).toBe('7');
+        });
+    
+        it('returns the next square if the next square is non-black and empty', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            const square = getNextNonBlackEmptySquare(InputDirection.ACROSS, 1, crossword);
+    
+            expect(square.number).toBe(3);
+        });
+    
+        it('returns several squares later if the following squares are not empty', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[1].value = 'A';
+            crossword.squares[2].value = 'B';
+            const square = getNextNonBlackEmptySquare(InputDirection.ACROSS, 0, crossword);
+    
+            expect(square.number).toBe(4);
+        });
+    
+        it('returns several squares later if the following squares are black', () => {
+            let crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[1].color = SquareColor.BLACK;
+            crossword.squares[2].color = SquareColor.BLACK;
+            crossword = duplicateCrossword(crossword);  // Redo numbering
+            const square = getNextNonBlackEmptySquare(InputDirection.ACROSS, 0, crossword);
+    
+            expect(square.number).toBe(2);
+        });
+    
+        it('throws an error if the index is too large', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+    
+            expect(() => getNextNonBlackEmptySquare(InputDirection.ACROSS, 9, crossword)).toThrow();
+        });
+    
+        it('throws an error if the index is too small', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+    
+            expect(() => getNextNonBlackEmptySquare(InputDirection.ACROSS, -1, crossword)).toThrow();
+        });
     });
 
-    it('returns the original square if the index is the last non-black square', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
-        let counter = 0;
-        for (let s of crossword.squares) {
-            s.value = String(counter);
-            counter++;
-        }
-        crossword.squares[8].color = SquareColor.BLACK;
-        const square = getNextNonBlackEmptySquare(7, crossword);
+    describe('Down', () => {
+        it('returns the next square in the same word if it is empty', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            const square = getNextNonBlackEmptySquare(InputDirection.DOWN, 0, crossword);
 
-        expect(square.value).toBe('7');
-    });
+            expect(square.number).toBe(4);
+        });
 
-    it('returns the next square if the next square is non-black and empty', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
-        const square = getNextNonBlackEmptySquare(1, crossword);
+        it('skips to the next empty square in the same word if the following letters are filled in', () => {
+            const crossword = createNewCrossword({width: 3, height: 4});
+            crossword.squares[3].value = 'A';
+            crossword.squares[6].value = 'B';
+            const square = getNextNonBlackEmptySquare(InputDirection.DOWN, 0, crossword);
 
-        expect(square.number).toBe(3);
-    });
+            expect(square.number).toBe(6);
+        });
 
-    it('returns several squares later if the following squares are not empty', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
-        crossword.squares[1].value = 'A';
-        crossword.squares[2].value = 'B';
-        const square = getNextNonBlackEmptySquare(0, crossword);
+        it('skips to the first letter of the next word that starts in the same row if that is empty and the rest of the word is full', () => {
+            let crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[3].value = 'A';
+            crossword.squares[6].color = SquareColor.BLACK;
+            crossword = duplicateCrossword(crossword);  // Redo numbering
+            const square = getNextNonBlackEmptySquare(InputDirection.DOWN, 0, crossword);
 
-        expect(square.number).toBe(4);
-    });
+            expect(square.number).toBe(2);
+        });
 
-    it('returns several squares later if the following squares are black', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
-        crossword.squares[1].color = SquareColor.BLACK;
-        crossword.squares[2].color = SquareColor.BLACK;
-        const square = getNextNonBlackEmptySquare(0, crossword);
+        it('skips to the next empty square of the next word that starts in the same row if the rest of the word is full', () => {
+            let crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[3].color = SquareColor.BLACK;
+            crossword.squares[1].value = 'A';
+            crossword = duplicateCrossword(crossword);  // Redo numbering
+            const square = getNextNonBlackEmptySquare(InputDirection.DOWN, 0, crossword);
 
-        expect(square.number).toBe(4);
-    });
+            expect(square.number).toBe(4);
+        });
 
-    it('throws an error if the index is too large', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
+        it('skips to a later word if all words that start in that row are full', () => {
+            let crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[2].color = SquareColor.BLACK;
+            crossword.squares[1].value = 'C';
+            crossword.squares[4].value = 'A';
+            crossword.squares[7].value = 'T';
+            crossword.squares[3].value = 'D';
+            crossword.squares[6].value = 'O';
+            crossword = duplicateCrossword(crossword);  // Redo numbering
+            const square = getNextNonBlackEmptySquare(InputDirection.DOWN, 0, crossword);
 
-        expect(() => getNextNonBlackEmptySquare(9, crossword)).toThrow();
-    });
+            expect(square.number).toBe(4);
+        });
 
-    it('throws an error if the index is too small', () => {
-        const crossword = createNewCrossword({width: 3, height: 3});
+        it('returns the last square if all other following squares have values', () => {
+            let crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[3].value = 'T';
+            crossword.squares[6].color = SquareColor.BLACK;
+            crossword.squares[1].value = 'D';
+            crossword.squares[4].value = 'O';
+            crossword.squares[7].color = SquareColor.BLACK;
+            crossword.squares[2].value = 'C';
+            crossword.squares[5].value = 'A';
+            crossword = duplicateCrossword(crossword);  // Redo numbering
+            const square = getNextNonBlackEmptySquare(InputDirection.DOWN, 0, crossword);
 
-        expect(() => getNextNonBlackEmptySquare(-1, crossword)).toThrow();
+            expect(square.number).toBe(5);
+        });
+
+        it('returns the last square if all other following squares are black', () => {
+            let crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[2].color = SquareColor.BLACK;
+            crossword.squares[5].color = SquareColor.BLACK;
+            crossword = duplicateCrossword(crossword);  // Redo numbering
+            const square = getNextNonBlackEmptySquare(InputDirection.DOWN, 7, crossword);
+
+            expect(square.number).toBe(5);
+        });
+
+        it('returns the original square if that square is the last one', () => {
+            const crossword = createNewCrossword({width: 3, height: 1});
+            const square = getNextNonBlackEmptySquare(InputDirection.DOWN, 2, crossword);
+            
+            expect(square.number).toBe(3);
+        });
+
+        it('returns the original square if all the following squares are full', () => {
+            let crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[2].color = SquareColor.BLACK;
+            crossword.squares[1].value = 'C';
+            crossword.squares[4].value = 'A';
+            crossword.squares[7].value = 'T';
+            crossword.squares[5].value = 'D';
+            crossword.squares[8].value = 'O';
+            crossword = duplicateCrossword(crossword);  // Redo numbering
+            const square = getNextNonBlackEmptySquare(InputDirection.DOWN, 6, crossword);
+
+            expect(square.number).toBe(5);
+        });
+
+        it('throws an error if the index is too large', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+    
+            expect(() => getNextNonBlackEmptySquare(InputDirection.DOWN, 9, crossword)).toThrow();
+        });
+    
+        it('throws an error if the index is too small', () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+    
+            expect(() => getNextNonBlackEmptySquare(InputDirection.DOWN, -1, crossword)).toThrow();
+        });
     });
 });
 

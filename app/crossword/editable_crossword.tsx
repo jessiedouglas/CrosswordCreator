@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { EditMode, SymmetryMode } from './page_crossword_edit';
 import './crossword.css';
-import { getActiveWordSquares, getNextNonBlackEmptySquare, getPreviousNonBlackSquare, getNextNonBlackSquareAbove, getNextNonBlackSquareBelow, getNextNonBlackSquareLeft, getNextNonBlackSquareRight } from '../helpers/square_navigators';
+import { getActiveWordSquares, getNextNonBlackEmptySquare, getPreviousNonBlackSquare, getNextNonBlackSquareAbove, getNextNonBlackSquareBelow, getNextNonBlackSquareLeft, getNextNonBlackSquareRight, InputDirection } from '../helpers/square_navigators';
 import { Crossword, duplicateCrossword, Square, SquareColor } from '../models/crossword';
 
 
@@ -119,7 +119,7 @@ export function EditableCrossword({crossword, setCrossword, editMode, symmetryMo
         }
         if (editMode == EditMode.TEXT && square.value) {
             square.active = false;
-            const nextSquare = getNextNonBlackEmptySquare(index, crossword);
+            const nextSquare = getNextNonBlackEmptySquare(InputDirection.ACROSS, index, crossword);
             nextSquare.active = true;
             markActiveWord();
         } 
@@ -130,7 +130,7 @@ export function EditableCrossword({crossword, setCrossword, editMode, symmetryMo
         const square = crossword.squares[index];
         square.active = false;
         // Value deleted; auto-advance backward for easy multi-deletion
-        const prevSquare = getPreviousNonBlackSquare(index, crossword);
+        const prevSquare = getPreviousNonBlackSquare(InputDirection.ACROSS, index, crossword);
         prevSquare.value = '';
         prevSquare.active = true;
         markActiveWord();
