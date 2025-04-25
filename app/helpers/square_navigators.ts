@@ -100,37 +100,34 @@ export function getNextNonBlackEmptySquare(direction: InputDirection, startingIn
 };
 
 /**
+ * @param direction
  * @param crossword 
- * @returns A list of squares in the active word as indicated by the 'active' 
- * property. If there is no active word, returns an empty list.
+ * @returns A list of squares in the active word (as indicated by the 'active' 
+ * property) in the given direction. If there is no active word, returns an 
+ * empty list.
  */
-export function getActiveWordSquares(crossword: Crossword): Square[] {
+export function getActiveWordSquares(direction: InputDirection, crossword: Crossword): Square[] {
+    if (direction == InputDirection.UNSPECIFIED) {
+        throw new Error('Unspecified input direction');
+    }
+
     const activeSquareIndex = crossword.squares.findIndex((s) => s.active);
     if (activeSquareIndex == -1) {
         // Not found
         return [];
     }
-    // Find index of first square
-    let currentIndex = activeSquareIndex;
+    let firstSquareIndex = getFirstSquareIndexOfCurrentWord(direction, activeSquareIndex, crossword);
+
+    let currentIndex = firstSquareIndex;
+    const activeWordSquares = [crossword.squares[currentIndex]];
     let searching = true;
     while (searching) {
-        const squareLeft = getSquareLeft(currentIndex, crossword);
-        if (!squareLeft || squareLeft.color == SquareColor.BLACK) {
+        const nextSquare = direction == InputDirection.ACROSS ? getSquareRight(currentIndex, crossword) : getSquareBelow(currentIndex, crossword);
+        if (!nextSquare || nextSquare.color == SquareColor.BLACK) {
             searching = false;
         } else {
-            currentIndex--;
-        }
-    }
-
-    const activeWordSquares = [crossword.squares[currentIndex]];
-    searching = true;
-    while (searching) {
-        const squareRight = getSquareRight(currentIndex, crossword);
-        if (!squareRight || squareRight.color == SquareColor.BLACK) {
-            searching = false;
-        } else {
-            activeWordSquares.push(squareRight);
-            currentIndex++;
+            activeWordSquares.push(nextSquare);
+            currentIndex += direction == InputDirection.ACROSS ? 1 : crossword.dimensions.width;
         }
     }
     return activeWordSquares;

@@ -181,7 +181,7 @@ export function EditableCrossword({crossword, setCrossword, editMode, symmetryMo
         for (let square of crossword.squares) {
             square.inActiveWord = false;
         }
-        const activeWordSquares = getActiveWordSquares(crossword);
+        const activeWordSquares = getActiveWordSquares(InputDirection.ACROSS, crossword);
         for (let activeWordSquare of activeWordSquares) {
             activeWordSquare.inActiveWord = true;
         }
