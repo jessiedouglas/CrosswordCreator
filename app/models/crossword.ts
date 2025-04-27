@@ -1,3 +1,5 @@
+import { getActiveWordSquares, InputDirection } from "../helpers/square_navigators";
+
 export interface Dimensions {
     width: number;
     height: number;
@@ -103,4 +105,16 @@ function duplicateSquare(square: Square): Square {
         active: square.active,
         inActiveWord: square.inActiveWord
     };
+}
+
+export function markActiveWordAndDuplicateCrossword(crossword: Crossword, direction: InputDirection): Crossword {
+    // Clear current active marks
+    for (let square of crossword.squares) {
+        square.inActiveWord = false;
+    }
+    const activeWordSquares = getActiveWordSquares(direction, crossword);
+    for (let activeWordSquare of activeWordSquares) {
+        activeWordSquare.inActiveWord = true;
+    }
+    return duplicateCrossword(crossword);
 }

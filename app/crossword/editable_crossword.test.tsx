@@ -129,6 +129,50 @@ describe('Text Edit Mode', () => {
         expect((inputs[1] as HTMLInputElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
     });
 
+    describe("Input direction", () => {
+        it('starts in across mode', async () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[0]);
+
+            expect((inputs[1] as HTMLInputElement).style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect((inputs[2] as HTMLInputElement).style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect((inputs[3] as HTMLInputElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((inputs[6] as HTMLInputElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        });
+
+        it('switches to down mode with spacebar', async () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[0]);
+            await userEvent.keyboard(' ');
+
+            expect((inputs[1] as HTMLInputElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((inputs[2] as HTMLInputElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((inputs[3] as HTMLInputElement).style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect((inputs[6] as HTMLInputElement).style.backgroundColor).toBe(BLUE_BACKGROUND);
+        });
+
+        it('switches back to across mode with double spacebar', async () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[0]);
+            await userEvent.keyboard(' ');
+            await userEvent.keyboard(' ');
+
+            expect((inputs[1] as HTMLInputElement).style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect((inputs[2] as HTMLInputElement).style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect((inputs[3] as HTMLInputElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect((inputs[6] as HTMLInputElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        });
+    });
+
     describe('On focus', () => {
         it('renders the active square yellow', async () => {
             const crossword = createNewCrossword({height: 3, width: 3});
@@ -139,7 +183,7 @@ describe('Text Edit Mode', () => {
             expect(inputs[0].style.backgroundColor).toBe(YELLOW_BACKGROUND);
         });
 
-        it('renders the other squares in the same word blue', async () => {
+        it('renders the other squares blue in the same word', async () => {
             const crossword = createNewCrossword({height: 3, width: 3});
             render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
             const inputs = screen.queryAllByTestId("crossword-input");
@@ -177,7 +221,7 @@ describe('Text Edit Mode', () => {
     });
 
     describe('Auto-advance', () => {
-        it('advances to the next empty non-black square after entry', async () => {
+        it('advances to the next empty non-black square after entry (in across mode, horizontally)', async () => {
             const crossword = createNewCrossword(DIMENSIONS);
             crossword.squares[1].color = SquareColor.BLACK;
             render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
@@ -188,6 +232,22 @@ describe('Text Edit Mode', () => {
             await userEvent.keyboard('b');
 
             expect((inputs[2] as HTMLInputElement).value).toBe('B');
+        });
+
+        it('advances to the next empty non-black square after entry (in down mode, to the next down word if needed)', async () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            crossword.squares[3].value = 'B';
+            crossword.squares[6].color = SquareColor.BLACK;
+            crossword.squares[1].value = 'C';
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[0]);
+            await userEvent.keyboard(' ');  // Switch to down
+            await userEvent.keyboard('a');
+            await userEvent.keyboard('d');
+
+            expect((inputs[4] as HTMLInputElement).value).toBe('D');
         });
 
         it('renders the new active square as yellow', async () => {
@@ -203,7 +263,7 @@ describe('Text Edit Mode', () => {
             expect(inputs[2].style.backgroundColor).toBe(YELLOW_BACKGROUND);
         });
 
-        it('renders the squares in the new active word as blue', async () => {
+        it('renders the squares as blue in the new active word horizontally in across mode', async () => {
             const crossword = createNewCrossword({width: 5, height: 2});
             crossword.squares[1].color = SquareColor.BLACK;
             render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
@@ -214,6 +274,19 @@ describe('Text Edit Mode', () => {
 
             expect(inputs[3].style.backgroundColor).toBe(BLUE_BACKGROUND);
             expect(inputs[4].style.backgroundColor).toBe(BLUE_BACKGROUND);
+        });
+
+        it('renders the squares as blue in the new active word vertically in down mode', async () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[6]);  // bottom left corner
+            await userEvent.keyboard(' ');  // switch to down
+            await userEvent.keyboard('a');
+
+            expect(inputs[4].style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect(inputs[7].style.backgroundColor).toBe(BLUE_BACKGROUND);
         });
 
         it('stays focused on the current square and deletes the value if the current square has a value', async () => {
@@ -233,7 +306,7 @@ describe('Text Edit Mode', () => {
             expect((inputs[0] as HTMLInputElement).value).toBe('A');
         });
 
-        it('backs up to the previous non-black square and removes the value on backspace if the current square doesnt have a value', async () => {
+        it('backs up to the previous non-black square (horizontally, in across mode) and removes the value on backspace if the current square doesnt have a value', async () => {
             const crossword = createNewCrossword(DIMENSIONS);
             render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
             const inputs = screen.queryAllByTestId("crossword-input");
@@ -246,6 +319,26 @@ describe('Text Edit Mode', () => {
 
             expect((inputs[0] as HTMLInputElement).value).toBe('');
             expect((inputs[1] as HTMLInputElement).value).toBe('');
+        });
+
+        it('backs up to the previous non-black square (vertically, in down mode) and removes the value on backspace if the current square doesnt have a value', async () => {
+            const crossword = createNewCrossword({width: 3, height: 3});
+            render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.TEXT} symmetryMode={SymmetryMode.NONE} />);
+            const inputs = screen.queryAllByTestId("crossword-input");
+
+            await userEvent.click(inputs[0]);
+            await userEvent.keyboard(' ');  // switch to down
+            await userEvent.keyboard('a');
+            await userEvent.keyboard('b');
+
+            expect((inputs[0] as HTMLInputElement).value).toBe('A');
+            expect((inputs[3] as HTMLInputElement).value).toBe('B');
+            
+            await userEvent.keyboard('[Backspace]');
+            await userEvent.keyboard('[Backspace]');
+
+            expect((inputs[0] as HTMLInputElement).value).toBe('');
+            expect((inputs[3] as HTMLInputElement).value).toBe('');
         });
 
         it('renders the backed-up active square as yellow', async () => {
