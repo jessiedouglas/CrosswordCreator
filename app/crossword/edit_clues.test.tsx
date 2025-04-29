@@ -7,7 +7,7 @@ import { EditClues } from './edit_clues';
 
 describe('EditClues', () => {
     it('renders the clue number for each across clue', () => {
-        render(<EditClues crossword={createNewCrossword({height: 2, width: 3})} />);
+        render(<EditClues crossword={createNewCrossword({height: 2, width: 3})} setCrossword={() => {}} />);
         const acrossNumbers: HTMLElement[] = within(screen.getByTestId("across-clues")).getAllByTestId("clue-number");
 
         expect(acrossNumbers).toHaveLength(2);
@@ -16,7 +16,7 @@ describe('EditClues', () => {
     });
 
     it('renders the clue number for each down clue', () => {
-        render(<EditClues crossword={createNewCrossword({height: 2, width: 3})} />);
+        render(<EditClues crossword={createNewCrossword({height: 2, width: 3})} setCrossword={() => {}} />);
         const downNumbers: HTMLElement[] = within(screen.getByTestId("down-clues")).getAllByTestId("clue-number");
 
         expect(downNumbers).toHaveLength(3);
@@ -26,7 +26,7 @@ describe('EditClues', () => {
     });
 
     it('renders an empty input box for each across and down clue in a blank crossword', () => {
-        render(<EditClues crossword={createNewCrossword({height: 2, width: 3})} />);
+        render(<EditClues crossword={createNewCrossword({height: 2, width: 3})} setCrossword={() => {}} />);
         const inputs: HTMLInputElement[] = screen.getAllByTestId("clue-input");
 
         expect(inputs).toHaveLength(5);
@@ -41,7 +41,7 @@ describe('EditClues', () => {
         const crossword = createNewCrossword({width: 2, height: 2});
         crossword.clues.across[0].text = "foobar";
         crossword.clues.down[1].text = "baz";
-        render(<EditClues crossword={crossword} />);
+        render(<EditClues crossword={crossword} setCrossword={() => {}} />);
         const inputs: HTMLInputElement[] = screen.getAllByTestId("clue-input");
 
         expect(inputs[0].value).toBe("foobar");

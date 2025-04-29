@@ -31,7 +31,7 @@ export function PageCrosswordEdit({crossword, setCrossword}: PageCrosswordEditSe
             <EditableCrossword crossword={crossword} setCrossword={setCrossword} editMode={editMode} symmetryMode={symmetryMode} />
             <div>
                 <CrosswordSettings editMode={editMode} setEditMode={setEditModeAndResetActiveSquare} symmetryMode={symmetryMode} setSymmetryMode={setSymmetryMode} />
-                {editMode == EditMode.CLUES && <EditClues crossword={crossword} />}
+                {editMode == EditMode.CLUES && <EditClues crossword={crossword} setCrossword={setCrossword} />}
             </div>
         </div>
     );
