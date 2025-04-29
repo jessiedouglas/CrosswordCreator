@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { EditMode, SymmetryMode } from './page_crossword_edit';
 import './crossword.css';
-import { getNextNonBlackEmptySquare, getPreviousNonBlackSquare, getNextNonBlackSquareAbove, getNextNonBlackSquareBelow, getNextNonBlackSquareLeft, getNextNonBlackSquareRight, InputDirection } from '../helpers/square_navigators';
-import { Crossword, duplicateCrossword, markActiveWordAndDuplicateCrossword, Square, SquareColor } from '../models/crossword';
+import { getNextNonBlackEmptySquare, getPreviousNonBlackSquare, getNextNonBlackSquareAbove, getNextNonBlackSquareBelow, getNextNonBlackSquareLeft, getNextNonBlackSquareRight } from '../helpers/square_navigators';
+import { Crossword, duplicateCrossword, InputDirection, markActiveWordAndDuplicateCrossword, Square, SquareColor } from '../models/crossword';
 import { Input } from 'postcss';
 
 

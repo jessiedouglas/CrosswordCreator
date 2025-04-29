@@ -1,14 +1,4 @@
-import { start } from "repl";
-import { Crossword, Square, SquareColor } from "../models/crossword";
-import { Input } from "postcss";
-import next from "next";
-
-
-export enum InputDirection {
-    UNSPECIFIED,
-    ACROSS,
-    DOWN
-}
+import { Crossword, InputDirection, Square, SquareColor } from "../models/crossword";
 
 /**
  * Gets the previous square in order that isn't black. If there are no previous

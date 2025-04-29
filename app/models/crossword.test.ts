@@ -1,6 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { createNewCrossword, duplicateCrossword, markActiveWordAndDuplicateCrossword, SquareColor } from './crossword';
-import { InputDirection } from '../helpers/square_navigators';
+import { Clue, ClueRange, createNewCrossword, duplicateCrossword, InputDirection, markActiveWordAndDuplicateCrossword, SquareColor } from './crossword';
 
 describe('Crossword', () => { 
     describe('createNewCrossword', () => {
@@ -40,6 +39,53 @@ describe('Crossword', () => {
             expect(crossword.squares[2].number).toBe(3);
             expect(crossword.squares[3].number).toBeNull();
         });
+
+        it('creates empty clues for each across and down word', () => {
+            const crossword = createNewCrossword({height: 2, width: 2});
+
+            const across1: Clue = {
+                number: 1,
+                text: '',
+                range: {
+                    direction: InputDirection.ACROSS,
+                    startIndex: 0,
+                    endIndex: 1
+                }
+            };
+            const across2: Clue = {
+                number: 3,
+                text: '',
+                range: {
+                    direction: InputDirection.ACROSS,
+                    startIndex: 2,
+                    endIndex: 3
+                }
+            };
+            const down1: Clue = {
+                number: 1,
+                text: '',
+                range: {
+                    direction: InputDirection.DOWN,
+                    startIndex: 0,
+                    endIndex: 2
+                }
+            };
+            const down2: Clue = {
+                number: 2,
+                text: '',
+                range: {
+                    direction: InputDirection.DOWN,
+                    startIndex: 1,
+                    endIndex: 3
+                }
+            };
+            expect(crossword.clues.across).toHaveLength(2);
+            expect(crossword.clues.across[0]).toEqual(across1);
+            expect(crossword.clues.across[1]).toEqual(across2);
+            expect(crossword.clues.down).toHaveLength(2);
+            expect(crossword.clues.down[0]).toEqual(down1);
+            expect(crossword.clues.down[1]).toEqual(down2);
+        });
     });
 
     describe('duplicateCrossword', () => {
@@ -72,6 +118,77 @@ describe('Crossword', () => {
             const newCrossword = duplicateCrossword(prevCrossword);
             expect(newCrossword.squares[0].number).toBe(null);
             expect(newCrossword.squares[1].number).toBe(1);
+        });
+
+        it('regenerates clues for squares', () => {
+            const prevCrossword = createNewCrossword({height: 2, width: 2});
+            prevCrossword.squares[0].color = SquareColor.BLACK;
+            const newCrossword = duplicateCrossword(prevCrossword);
+
+            const rangeAcross1: ClueRange = {
+                direction: InputDirection.ACROSS,
+                startIndex: 1,
+                endIndex: 1
+            };
+            const rangeAcross2: ClueRange = {
+                direction: InputDirection.ACROSS,
+                startIndex: 2,
+                endIndex: 3
+            };
+            const rangeDown1: ClueRange = {
+                direction: InputDirection.DOWN,
+                startIndex: 1,
+                endIndex: 3
+            };
+            const rangeDown2: ClueRange = {
+                direction: InputDirection.DOWN,
+                startIndex: 2,
+                endIndex: 2
+            };
+            expect(newCrossword.clues.across).toHaveLength(2);
+            expect(newCrossword.clues.across[0].number).toBe(1);
+            expect(newCrossword.clues.across[0].range).toEqual(rangeAcross1);
+            expect(newCrossword.clues.across[1].number).toBe(2);
+            expect(newCrossword.clues.across[1].range).toEqual(rangeAcross2);
+            expect(newCrossword.clues.down).toHaveLength(2);
+            expect(newCrossword.clues.down[0].number).toBe(1);
+            expect(newCrossword.clues.down[0].range).toEqual(rangeDown1);
+            expect(newCrossword.clues.down[1].number).toBe(2);
+            expect(newCrossword.clues.down[1].range).toEqual(rangeDown2);
+        });
+
+        it('preserves previous across clues if the range is the same', () => {
+            const prevCrossword = createNewCrossword({height: 1, width: 3});
+            prevCrossword.clues.across[0].text = "Sample clue";
+            const newCrossword = duplicateCrossword(prevCrossword);
+
+            expect(newCrossword.clues.across[0].text).toBe('Sample clue');
+        });
+
+        it('preserves previous down clues if the range is the same', () => {
+            const prevCrossword = createNewCrossword({height: 3, width: 1});
+            prevCrossword.clues.down[0].text = "Sample clue";
+            const newCrossword = duplicateCrossword(prevCrossword);
+
+            expect(newCrossword.clues.down[0].text).toBe('Sample clue');
+        });
+
+        it('removes previous across clues if the range isnt the same', () => {
+            const prevCrossword = createNewCrossword({height: 1, width: 3});
+            prevCrossword.clues.across[0].text = "Sample clue";
+            prevCrossword.squares[2].color = SquareColor.BLACK;
+            const newCrossword = duplicateCrossword(prevCrossword);
+
+            expect(newCrossword.clues.across[0].text).toBe('');
+        });
+
+        it('removes previous down clues if the range isnt the same', () => {
+            const prevCrossword = createNewCrossword({height: 3, width: 1});
+            prevCrossword.clues.down[0].text = "Sample clue";
+            prevCrossword.squares[2].color = SquareColor.BLACK;
+            const newCrossword = duplicateCrossword(prevCrossword);
+
+            expect(newCrossword.clues.down[0].text).toBe('');
         });
     });
 

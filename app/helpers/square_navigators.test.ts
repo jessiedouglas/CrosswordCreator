@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
-import { createNewCrossword, Crossword, duplicateCrossword, SquareColor } from '../models/crossword';
-import { getPreviousNonBlackSquare, getNextNonBlackEmptySquare, getActiveWordSquares, getNextNonBlackSquareAbove, getNextNonBlackSquareBelow, getNextNonBlackSquareLeft, getNextNonBlackSquareRight, InputDirection } from './square_navigators';
+import { createNewCrossword, Crossword, duplicateCrossword, InputDirection, SquareColor } from '../models/crossword';
+import { getPreviousNonBlackSquare, getNextNonBlackEmptySquare, getActiveWordSquares, getNextNonBlackSquareAbove, getNextNonBlackSquareBelow, getNextNonBlackSquareLeft, getNextNonBlackSquareRight } from './square_navigators';
 
 describe('getPreviousNonBlackSquare', () => {
     describe('Across', () => {
