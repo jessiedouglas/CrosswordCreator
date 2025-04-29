@@ -89,8 +89,10 @@ function EditableSquare({index, square, editMode, updateSquare, handleBackspace,
     const style = {backgroundColor};
     if (editMode == EditMode.TEXT) {
         content = <input className="crossword-input" data-testid="crossword-input" value={square.value} style={style} disabled={square.color == SquareColor.BLACK} onInput={onInsertText} onFocus={onFocus} onKeyUp={onKeyUp} ref={inputRef} />;
-    } else {
+    } else if (editMode == EditMode.TOGGLE_BLACK) {
         content = <div className="crossword-input size-full" data-testid="inner-box" style={style} onClick={onBoxToggle}>{square.value}</div>;
+    } else {
+        content = <div className="crossword-input size-full" data-testid="inner-box" style={style}>{square.value}</div>;
     }
 
     return (
@@ -198,7 +200,7 @@ export function EditableCrossword({crossword, setCrossword, editMode, symmetryMo
     }
     const style = {width: `${crossword.dimensions.width * 40}px`}
     return (
-        <div className={`crossword grid grid-cols-${crossword.dimensions.width} grid-flow-row border-r-2 border-b-2 border-black box-content`} style={style}>
+        <div className={`crossword h-fit grid grid-cols-${crossword.dimensions.width} grid-flow-row border-r-2 border-b-2 border-black box-content`} style={style}>
             {squareElements}
         </div>
     );

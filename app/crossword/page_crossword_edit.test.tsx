@@ -48,6 +48,12 @@ describe('Initial state', () => {
         expect((squares[0] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
         expect((squares[224] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
     });
+
+    it('doesnt render clues', () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword({height: 15, width: 15})} />);
+        
+        expect(screen.queryByTestId('clues')).toBeNull();
+    });
 });
 
 describe('After selecting mirror symmetry', () => {
@@ -106,6 +112,42 @@ describe('After selecting text edit mode', () => {
         await userEvent.keyboard('j');
 
         expect((inner as HTMLInputElement).value).toBe('J');
+    });
+});
+
+describe('After selecting edit clues mode', () => {
+    it('renders the clues section', async () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword({height: 15, width: 15})} />);
+        const modeCluesRadioButton: HTMLInputElement = screen.getByTestId('mode-clues-button');
+        await userEvent.click(modeCluesRadioButton);
+        
+        expect(screen.queryByTestId('clues')).not.toBeNull();
+    });
+
+    it('doesnt allow toggling black/white', async () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword({height: 15, width: 15})} />);
+        const modeCluesRadioButton: HTMLInputElement = screen.getByTestId('mode-clues-button');
+        await userEvent.click(modeCluesRadioButton);
+
+        const squares: HTMLElement[] = screen.queryAllByTestId("crossword-square");
+        const inner = squares[0].lastElementChild!;
+        expect((inner as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        await userEvent.click(inner);
+
+        expect((inner as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+    });
+
+    it('doesnt allow text to be input', async () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword({height: 15, width: 15})} />);
+        const modeCluesRadioButton: HTMLInputElement = screen.getByTestId('mode-clues-button');
+        await userEvent.click(modeCluesRadioButton);
+
+        const squares: HTMLElement[] = screen.queryAllByTestId("crossword-square");
+        const inner = squares[0].lastElementChild!;
+        await userEvent.click(inner);
+        await userEvent.keyboard('j');
+
+        expect(inner.textContent).toBe('');
     });
 });
 

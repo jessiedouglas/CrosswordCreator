@@ -791,3 +791,51 @@ describe('Black Toggle Mode', () => {
         });
     });
 });
+
+describe('Edit clues mode', () => {
+    it('renders black and white boxes', () => {
+        const crossword = createNewCrossword({width: 2, height: 2});
+        crossword.squares[0].color = SquareColor.BLACK;
+        render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.CLUES} symmetryMode={SymmetryMode.NONE} />);
+        const squares = screen.queryAllByTestId("crossword-square").map(s => s.lastElementChild);
+
+        expect((squares[0] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+        expect((squares[1] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        expect((squares[2] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        expect((squares[3] as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+    });
+
+    it('renders previously entered text', () => {
+        const crossword = createNewCrossword({width: 2, height: 2});
+        crossword.squares[0].value = 'A';
+        render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.CLUES} symmetryMode={SymmetryMode.NONE} />);
+        const squares = screen.getAllByTestId("inner-box");
+
+        expect(squares[0].textContent).toBe('A');
+    });
+
+    it('doesnt allow black/white toggling', async () => {
+        const crossword = createNewCrossword(DIMENSIONS);
+        crossword.squares[1].color = SquareColor.BLACK;
+        render(<TestCrosswordHolder crossword={crossword}  editMode={EditMode.CLUES} symmetryMode={SymmetryMode.NONE} />);
+        const squares: HTMLElement[] = screen.getAllByTestId("inner-box");
+
+        expect(squares[0].style.backgroundColor).toBe(WHITE_BACKGROUND);
+        expect(squares[1].style.backgroundColor).toBe(BLACK_BACKGROUND);
+        await userEvent.click(squares[0]);
+        await userEvent.click(squares[1]);
+
+        expect(squares[0].style.backgroundColor).toBe(WHITE_BACKGROUND);
+        expect(squares[1].style.backgroundColor).toBe(BLACK_BACKGROUND);
+    });
+
+    it('doesnt allow text enter', async () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword(DIMENSIONS)}  editMode={EditMode.CLUES} symmetryMode={SymmetryMode.NONE} />);
+        const squares = screen.getAllByTestId("crossword-square").map(s => s.lastElementChild);
+
+        await userEvent.click(squares[0] as HTMLElement);
+        await userEvent.keyboard('A');
+
+        expect((squares[0] as HTMLElement).textContent).toBe('');
+    });
+});

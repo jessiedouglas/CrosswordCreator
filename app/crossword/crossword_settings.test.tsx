@@ -11,8 +11,10 @@ describe('Text Edit Mode', () => {
 
         const modeTextRadioButton: HTMLInputElement = await screen.findByTestId('mode-text-button');
         const modeToggleRadioButton: HTMLInputElement = await screen.findByTestId('mode-toggle-button');
+        const modeCluesRadioButton: HTMLInputElement = screen.getByTestId('mode-clues-button');
         expect(modeTextRadioButton.checked).toBe(true);
         expect(modeToggleRadioButton.checked).toBeFalsy();
+        expect(modeCluesRadioButton.checked).toBeFalsy();
     });
 
     it('calls setEditMode on toggle', async () => {
@@ -40,8 +42,10 @@ describe('Toggle Black Mode', () => {
 
         const modeTextRadioButton: HTMLInputElement = await screen.findByTestId('mode-text-button');
         const modeToggleRadioButton: HTMLInputElement = await screen.findByTestId('mode-toggle-button');
+        const modeCluesRadioButton: HTMLInputElement = screen.getByTestId('mode-clues-button');
         expect(modeToggleRadioButton.checked).toBe(true);
         expect(modeTextRadioButton.checked).toBeFalsy();
+        expect(modeCluesRadioButton.checked).toBeFalsy();
     });
 
     it('calls setEditMode on toggle', async () => {
@@ -126,5 +130,30 @@ describe('Toggle Black Mode', () => {
 
             expect(currentSymmetry).toBe(SymmetryMode.NONE);
         });
+    });
+});
+
+describe('Clues mode', () => {
+    it('initially displays with Edit clues selected', () => {
+        render(<CrosswordSettings editMode={EditMode.CLUES} setEditMode={() => {}} symmetryMode={SymmetryMode.NONE} setSymmetryMode={() => {}} ></CrosswordSettings>);
+        
+        const modeTextRadioButton: HTMLInputElement = screen.getByTestId('mode-text-button');
+        const modeToggleRadioButton: HTMLInputElement = screen.getByTestId('mode-toggle-button');
+        const modeCluesRadioButton: HTMLInputElement = screen.getByTestId('mode-clues-button');
+        expect(modeCluesRadioButton.checked).toBe(true);
+        expect(modeToggleRadioButton.checked).toBeFalsy();
+        expect(modeTextRadioButton.checked).toBeFalsy();
+    });
+
+    it('calls setEditMode on toggle', async () => {
+        let currentMode = EditMode.CLUES;
+        const setEditMode = (mode: EditMode) => {
+            currentMode = mode;
+        }
+        render(<CrosswordSettings editMode={EditMode.CLUES} setEditMode={setEditMode} symmetryMode={SymmetryMode.NONE} setSymmetryMode={() => {}} ></CrosswordSettings>);
+        const modeToggleRadioButton: HTMLInputElement = await screen.findByTestId('mode-toggle-button');
+        await userEvent.click(modeToggleRadioButton);
+
+        expect(currentMode).toBe(EditMode.TOGGLE_BLACK);
     });
 });

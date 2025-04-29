@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import './crossword.css';
+import { EditClues } from './edit_clues';
 import { EditableCrossword } from './editable_crossword';
 import { CrosswordSettings } from './crossword_settings';
-import { createNewCrossword, Crossword, duplicateCrossword } from '../models/crossword';
+import { Crossword, duplicateCrossword } from '../models/crossword';
 
 interface PageCrosswordEditSettings {
     crossword: Crossword;
@@ -28,7 +29,10 @@ export function PageCrosswordEdit({crossword, setCrossword}: PageCrosswordEditSe
     return (
         <div className="flex w-full justify-evenly">
             <EditableCrossword crossword={crossword} setCrossword={setCrossword} editMode={editMode} symmetryMode={symmetryMode} />
-            <CrosswordSettings editMode={editMode} setEditMode={setEditModeAndResetActiveSquare} symmetryMode={symmetryMode} setSymmetryMode={setSymmetryMode} />
+            <div>
+                <CrosswordSettings editMode={editMode} setEditMode={setEditModeAndResetActiveSquare} symmetryMode={symmetryMode} setSymmetryMode={setSymmetryMode} />
+                {editMode == EditMode.CLUES && <EditClues crossword={crossword} />}
+            </div>
         </div>
     );
 }
@@ -36,7 +40,8 @@ export function PageCrosswordEdit({crossword, setCrossword}: PageCrosswordEditSe
 export enum EditMode {
     UNSPECIFIED,
     TEXT,
-    TOGGLE_BLACK
+    TOGGLE_BLACK,
+    CLUES
 }
 
 export enum SymmetryMode {
