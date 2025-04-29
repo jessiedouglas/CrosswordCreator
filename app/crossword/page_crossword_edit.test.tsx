@@ -9,12 +9,17 @@ import preview from 'jest-preview';
 
 const WHITE_BACKGROUND = "rgba(1, 1, 1, 0)";
 const BLACK_BACKGROUND = "rgb(0, 0, 0)";
+const YELLOW_BACKGROUND = "rgba(252, 247, 88, 0.2)";
+const BLUE_BACKGROUND = "rgba(166, 246, 247, 0.2)";
 
 /** A wrapper that uses state to trigger a rerender. */
 function TestCrosswordHolder({crossword}: {crossword: Crossword}) {
-    const [xword, setXword] = useState(crossword)
+    function nullCrosswordInitializer(): Crossword|null {
+        return crossword;
+    }
+    const [xword, setXword] = useState(nullCrosswordInitializer);
     return (
-        <PageCrosswordEdit crossword={xword} setCrossword={setXword} />
+        <PageCrosswordEdit crossword={xword as Crossword} setCrossword={setXword} />
     )
 }
 
@@ -42,6 +47,12 @@ describe('Initial state', () => {
         
         expect((squares[0] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
         expect((squares[224] as HTMLElement).style.backgroundColor).toBe(BLACK_BACKGROUND);
+    });
+
+    it('doesnt render clues', () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword({height: 15, width: 15})} />);
+        
+        expect(screen.queryByTestId('clues')).toBeNull();
     });
 });
 
@@ -87,7 +98,7 @@ describe('After selecting text edit mode', () => {
         expect((inner as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
         await userEvent.click(inner);
 
-        expect((inner as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        expect((inner as HTMLElement).style.backgroundColor).toBe(YELLOW_BACKGROUND);
     });
 
     it('allows text to be input', async () => {
@@ -101,6 +112,42 @@ describe('After selecting text edit mode', () => {
         await userEvent.keyboard('j');
 
         expect((inner as HTMLInputElement).value).toBe('J');
+    });
+});
+
+describe('After selecting edit clues mode', () => {
+    it('renders the clues section', async () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword({height: 15, width: 15})} />);
+        const modeCluesRadioButton: HTMLInputElement = screen.getByTestId('mode-clues-button');
+        await userEvent.click(modeCluesRadioButton);
+        
+        expect(screen.queryByTestId('clues')).not.toBeNull();
+    });
+
+    it('doesnt allow toggling black/white', async () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword({height: 15, width: 15})} />);
+        const modeCluesRadioButton: HTMLInputElement = screen.getByTestId('mode-clues-button');
+        await userEvent.click(modeCluesRadioButton);
+
+        const squares: HTMLElement[] = screen.queryAllByTestId("crossword-square");
+        const inner = squares[0].lastElementChild!;
+        expect((inner as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        await userEvent.click(inner);
+
+        expect((inner as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+    });
+
+    it('doesnt allow text to be input', async () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword({height: 15, width: 15})} />);
+        const modeCluesRadioButton: HTMLInputElement = screen.getByTestId('mode-clues-button');
+        await userEvent.click(modeCluesRadioButton);
+
+        const squares: HTMLElement[] = screen.queryAllByTestId("crossword-square");
+        const inner = squares[0].lastElementChild!;
+        await userEvent.click(inner);
+        await userEvent.keyboard('j');
+
+        expect(inner.textContent).toBe('');
     });
 });
 
@@ -133,5 +180,24 @@ describe('After re-selecting toggle black/white mode', () => {
         await userEvent.keyboard('j');
 
         expect(inner.textContent).toBe('');
+    });
+
+    it('removes active word and letter backgrounds', async () => {
+        render(<TestCrosswordHolder crossword={createNewCrossword({height: 3, width: 3})} />);
+        const modeTextRadioButton: HTMLInputElement = screen.getByTestId('mode-text-button');
+        const modeToggleRadioButton: HTMLInputElement = screen.getByTestId('mode-toggle-button');
+        await userEvent.click(modeTextRadioButton);
+
+        const squares: HTMLElement[] = screen.queryAllByTestId("crossword-square");
+        await userEvent.click(squares[0].lastElementChild!);
+        expect((squares[0].lastElementChild! as HTMLElement).style.backgroundColor).toBe(YELLOW_BACKGROUND);
+        expect((squares[1].lastElementChild! as HTMLElement).style.backgroundColor).toBe(BLUE_BACKGROUND);
+        expect((squares[2].lastElementChild! as HTMLElement).style.backgroundColor).toBe(BLUE_BACKGROUND);
+
+        await userEvent.click(modeToggleRadioButton);
+
+        expect((squares[0].lastElementChild! as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        expect((squares[1].lastElementChild! as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
+        expect((squares[2].lastElementChild! as HTMLElement).style.backgroundColor).toBe(WHITE_BACKGROUND);
     });
 });

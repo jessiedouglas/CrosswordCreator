@@ -4,14 +4,14 @@ import { EditMode, SymmetryMode } from "./page_crossword_edit"
 
 interface CrosswordSettingsSettings {
     editMode: EditMode;
-    setEditMode: Function;
+    setEditMode: (editMode: EditMode) => void;
     symmetryMode: SymmetryMode;
-    setSymmetryMode: Function;
+    setSymmetryMode: (symmetryMode: SymmetryMode) => void;
 }
 
 interface SymmetrySettingsSettings {
     symmetryMode: SymmetryMode;
-    setSymmetryMode: Function;
+    setSymmetryMode: (symmetryMode: SymmetryMode) => void;
 }
 
 function SymmetrySettings({symmetryMode, setSymmetryMode}: SymmetrySettingsSettings) {
@@ -54,6 +54,11 @@ export function CrosswordSettings({editMode, setEditMode, symmetryMode, setSymme
 
                 <input type="radio" id="mode-toggle" name="edit-mode" value={EditMode.TOGGLE_BLACK} onChange={updateEditMode} defaultChecked={editMode == EditMode.TOGGLE_BLACK} data-testid="mode-toggle-button" />
                 <label htmlFor="mode-toggle">Toggle squares black/white</label>
+
+                <br />
+
+                <input type="radio" id="mode-clues" name="edit-mode" value={EditMode.CLUES} onChange={updateEditMode} defaultChecked={editMode == EditMode.CLUES} data-testid="mode-clues-button" />
+                <label htmlFor="mode-clues">Edit clues</label>
             </fieldset>
         {editMode == EditMode.TOGGLE_BLACK && <SymmetrySettings symmetryMode={symmetryMode} setSymmetryMode={setSymmetryMode} />}
         </section>
