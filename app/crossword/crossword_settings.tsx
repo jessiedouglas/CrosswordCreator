@@ -4,14 +4,14 @@ import { EditMode, SymmetryMode } from "./page_crossword_edit"
 
 interface CrosswordSettingsSettings {
     editMode: EditMode;
-    setEditMode: Function;
+    setEditMode: (editMode: EditMode) => void;
     symmetryMode: SymmetryMode;
-    setSymmetryMode: Function;
+    setSymmetryMode: (symmetryMode: SymmetryMode) => void;
 }
 
 interface SymmetrySettingsSettings {
     symmetryMode: SymmetryMode;
-    setSymmetryMode: Function;
+    setSymmetryMode: (symmetryMode: SymmetryMode) => void;
 }
 
 function SymmetrySettings({symmetryMode, setSymmetryMode}: SymmetrySettingsSettings) {

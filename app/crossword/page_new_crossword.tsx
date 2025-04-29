@@ -5,7 +5,7 @@ import { PageCrosswordEdit } from "./page_crossword_edit";
 import { createNewCrossword, Crossword, Dimensions } from "../models/crossword";
 
 interface DimensionsSelectorSettings {
-    setDimensions: Function;
+    setDimensions: (dimensions: Dimensions) => void;
 }
 
 enum DimensionsOptions {
