@@ -49,4 +49,17 @@ describe('EditClues', () => {
         expect(inputs[2].value).toBe("");
         expect(inputs[3].value).toBe("baz");
     });
+
+    it('calls setCrossword on clue input focus', async () => {
+        let crosswordSet = false;
+        const setCrossword = () => {
+            crosswordSet = true;
+        };
+        render(<EditClues crossword={createNewCrossword({height: 2, width: 3})} setCrossword={setCrossword} />);
+        const inputs: HTMLInputElement[] = screen.getAllByTestId("clue-input");
+
+        await userEvent.click(inputs[2]);
+
+        expect(crosswordSet).toBe(true);
+    });
 });

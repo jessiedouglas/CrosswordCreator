@@ -1,4 +1,4 @@
-import {render, screen} from '@testing-library/react';
+import {render, screen, within} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { describe, expect, it } from '@jest/globals';
@@ -148,6 +148,45 @@ describe('After selecting edit clues mode', () => {
         await userEvent.keyboard('j');
 
         expect(inner.textContent).toBe('');
+    });
+
+    describe('Active word highlighting', () => {
+        it('renders the squares blue of the word for the selected across clue on focus', async () => {
+            render(<TestCrosswordHolder crossword={createNewCrossword({height: 3, width: 3})} />);
+            const modeCluesRadioButton: HTMLInputElement = screen.getByTestId('mode-clues-button');
+            await userEvent.click(modeCluesRadioButton);
+
+            const squares = screen.queryAllByTestId("inner-box");
+            expect(squares[0].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(squares[1].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(squares[2].style.backgroundColor).toBe(WHITE_BACKGROUND);
+
+            
+            const clueInputs: HTMLTextAreaElement[] = within(screen.getByTestId("across-clues")).getAllByTestId("clue-input");
+            await userEvent.click(clueInputs[0]);
+
+            expect(squares[0].style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect(squares[1].style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect(squares[2].style.backgroundColor).toBe(BLUE_BACKGROUND);
+        });
+
+        it('renders the squares blue of the word for the selected across clue on focus', async () => {
+            render(<TestCrosswordHolder crossword={createNewCrossword({height: 3, width: 3})} />);
+            const modeCluesRadioButton: HTMLInputElement = screen.getByTestId('mode-clues-button');
+            await userEvent.click(modeCluesRadioButton);
+
+            const squares = screen.queryAllByTestId("inner-box");
+            expect(squares[0].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(squares[3].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            expect(squares[6].style.backgroundColor).toBe(WHITE_BACKGROUND);
+            
+            const clueInputs: HTMLTextAreaElement[] = within(screen.getByTestId("down-clues")).getAllByTestId("clue-input");
+            await userEvent.click(clueInputs[0]);
+
+            expect(squares[0].style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect(squares[3].style.backgroundColor).toBe(BLUE_BACKGROUND);
+            expect(squares[6].style.backgroundColor).toBe(BLUE_BACKGROUND);
+        });
     });
 });
 

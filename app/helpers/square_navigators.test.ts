@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
-import { createNewCrossword, Crossword, duplicateCrossword, InputDirection, SquareColor } from '../models/crossword';
-import { getPreviousNonBlackSquare, getNextNonBlackEmptySquare, getActiveWordSquares, getNextNonBlackSquareAbove, getNextNonBlackSquareBelow, getNextNonBlackSquareLeft, getNextNonBlackSquareRight } from './square_navigators';
+import { Clue, createNewCrossword, Crossword, duplicateCrossword, InputDirection, SquareColor } from '../models/crossword';
+import { getPreviousNonBlackSquare, getNextNonBlackEmptySquare, getActiveWordSquares, getNextNonBlackSquareAbove, getNextNonBlackSquareBelow, getNextNonBlackSquareLeft, getNextNonBlackSquareRight, getClueWordIndices } from './square_navigators';
 
 describe('getPreviousNonBlackSquare', () => {
     describe('Across', () => {
@@ -578,6 +578,38 @@ describe('getNextNonBlackSquareBelow', () => {
         crossword.squares[8].color = SquareColor.BLACK;
 
         expect(getNextNonBlackSquareBelow(0, crossword)!.value).toBe('12');
+    });
+});
+
+describe('getClueWordIndices', () => {
+    it('gives the indices from start to end for an across clue', () => {
+        const clue: Clue = {
+            number: 1,
+            text: '',
+            range: {
+                direction: InputDirection.ACROSS,
+                startIndex: 4,
+                endIndex: 7
+            }
+        };
+        const crossword = createNewCrossword({width: 10, height: 10});
+
+        expect(getClueWordIndices(clue, crossword)).toEqual([4, 5, 6, 7]);
+    });
+
+    it('gives the indices from start to end for a down clue', () => {
+        const clue: Clue = {
+            number: 1,
+            text: '',
+            range: {
+                direction: InputDirection.DOWN,
+                startIndex: 4,
+                endIndex: 34
+            }
+        };
+        const crossword = createNewCrossword({width: 10, height: 11});
+
+        expect(getClueWordIndices(clue, crossword)).toEqual([4, 14, 24, 34]);
     });
 });
 

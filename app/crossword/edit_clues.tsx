@@ -1,5 +1,6 @@
 'use client'
 
+import { getClueWordIndices } from '../helpers/square_navigators';
 import { Clue, Crossword, duplicateCrossword, InputDirection } from '../models/crossword';
 
 interface EditCluesSettings {
@@ -11,18 +12,23 @@ interface EditableClueSettings {
     index: number;
     clue: Clue;
     updateClue: (i: number, c: Clue) => void;
+    highlightActiveWord: (c: Clue) => void;
 }
 
-function EditableClue({index, clue, updateClue}: EditableClueSettings) {
+function EditableClue({index, clue, updateClue, highlightActiveWord}: EditableClueSettings) {
     const onInsertText = (e: React.FormEvent<HTMLTextAreaElement>) => {
         clue.text = e.currentTarget.value;
         updateClue(index, clue);
     };
 
+    const onFocus = () => {
+        highlightActiveWord(clue);
+    }
+
     return (
         <div className="flex mb-2">
             <p className="font-bold w-[24px] mr-2" data-testid="clue-number">{clue.number}.</p>
-            <textarea className="clue-input px-2 py-1 resize-none" value={clue.text} data-testid="clue-input" onChange={onInsertText} cols={30} maxLength={200}/>
+            <textarea className="clue-input px-2 py-1 resize-none" value={clue.text} data-testid="clue-input" onChange={onInsertText} onFocus={onFocus} cols={30} maxLength={200}/>
         </div>
     );
 }
@@ -34,9 +40,20 @@ export function EditClues({crossword, setCrossword}: EditCluesSettings) {
         setCrossword(duplicateCrossword(crossword));
     }
 
+    const highlightActiveWord = (clue: Clue) => { 
+        for (let square of crossword.squares) {
+            square.inActiveWord = false;
+        }
+        const clueWordIndices = getClueWordIndices(clue, crossword);
+        for (let i of clueWordIndices) {
+            crossword.squares[i].inActiveWord = true;
+        }
+        setCrossword(duplicateCrossword(crossword));
+    }
+
     const getClueTSX = (index: number, clue: Clue) => {
         const key = `${clue.range.direction == InputDirection.ACROSS ? "across": "down"}-${clue.number}`;
-        return (<EditableClue index={index} clue={clue} updateClue={updateClue} key={key}/>);
+        return (<EditableClue index={index} clue={clue} updateClue={updateClue} highlightActiveWord={highlightActiveWord} key={key}/>);
     }
 
     const acrossClues = [];

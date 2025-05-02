@@ -1,4 +1,4 @@
-import { Crossword, InputDirection, Square, SquareColor } from "../models/crossword";
+import { Clue, Crossword, InputDirection, Square, SquareColor } from "../models/crossword";
 
 /**
  * Gets the previous square in order that isn't black. If there are no previous
@@ -185,6 +185,22 @@ export function getNextNonBlackSquareBelow(index: number, crossword: Crossword):
         nextBelowSquare = getSquareBelow(currentIndex, crossword);
     }
     return nextBelowSquare;
+}
+
+
+/**
+ * @param clue 
+ * @param crossword 
+ * @returns a list of indices of squares in the word for the given clue.
+ */
+export function getClueWordIndices(clue: Clue, crossword: Crossword): number[] {
+    const indices = [];
+    let currentIndex = clue.range.startIndex;
+    while (currentIndex <= clue.range.endIndex) {
+        indices.push(currentIndex);
+        currentIndex += clue.range.direction == InputDirection.ACROSS ? 1 : crossword.dimensions.width;
+    }
+    return indices;
 }
 
 /**
