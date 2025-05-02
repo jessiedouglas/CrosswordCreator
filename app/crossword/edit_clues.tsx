@@ -14,15 +14,15 @@ interface EditableClueSettings {
 }
 
 function EditableClue({index, clue, updateClue}: EditableClueSettings) {
-    const onInsertText = (e: React.FormEvent<HTMLInputElement>) => {
+    const onInsertText = (e: React.FormEvent<HTMLTextAreaElement>) => {
         clue.text = e.currentTarget.value;
         updateClue(index, clue);
     };
 
     return (
-        <div>
-            <span data-testid="clue-number">{clue.number}.</span>
-            <input type="text" value={clue.text} data-testid="clue-input" onChange={onInsertText} />
+        <div className="flex mb-2">
+            <p className="font-bold w-[24px] mr-2" data-testid="clue-number">{clue.number}.</p>
+            <textarea className="clue-input px-2 py-1 resize-none" value={clue.text} data-testid="clue-input" onChange={onInsertText} cols={30} maxLength={200}/>
         </div>
     );
 }
@@ -51,7 +51,7 @@ export function EditClues({crossword, setCrossword}: EditCluesSettings) {
         <section className="mt-8" data-testid="clues">
             <h2>Clues</h2>
             <div className="flex">
-                <div>
+                <div className='mr-2'>
                     <h3>Across</h3>
                     <div data-testid="across-clues">
                         {acrossClues}

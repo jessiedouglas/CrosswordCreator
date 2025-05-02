@@ -29,7 +29,7 @@ export function PageCrosswordEdit({crossword, setCrossword}: PageCrosswordEditSe
     return (
         <div className="flex w-full justify-evenly">
             <EditableCrossword crossword={crossword} setCrossword={setCrossword} editMode={editMode} symmetryMode={symmetryMode} />
-            <div>
+            <div className="min-w-[300px] w-[40%]">
                 <CrosswordSettings editMode={editMode} setEditMode={setEditModeAndResetActiveSquare} symmetryMode={symmetryMode} setSymmetryMode={setSymmetryMode} />
                 {editMode == EditMode.CLUES && <EditClues crossword={crossword} setCrossword={setCrossword} />}
             </div>

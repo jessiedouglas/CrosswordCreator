@@ -29,6 +29,16 @@ input.crossword-input:focus {
     border-radius: 5px;
 }
 
+.clue-input {
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.clue-input:focus {
+    outline: none;
+    background-color: rgba(166, 246, 247, 0.2);
+}
+
 
 /* ONLY GRID COLUMNS SHORTCUTS BELOW HERE */
 .grid-cols-1 {

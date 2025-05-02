@@ -44,7 +44,7 @@ export function CrosswordSettings({editMode, setEditMode, symmetryMode, setSymme
     }
 
     return (
-        <section className="w-[300px]">
+        <section>
             <fieldset>
                 <legend>Edit mode:</legend>
                 <input type="radio" id="mode-text" name="edit-mode" value={EditMode.TEXT} onChange={updateEditMode} defaultChecked={editMode == EditMode.TEXT} data-testid="mode-text-button" />
