@@ -1,8 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
-import { Clue, ClueRange, createNewCrossword, duplicateCrossword, InputDirection, markActiveWordAndDuplicateCrossword, SquareColor } from './crossword';
+import { Clue, ClueRange, createNewCrossword, duplicateCrossword, InputDirection, markActiveWordAndDuplicateCrossword, setTitleAndDuplicateCrossword, SquareColor } from './crossword';
 
 describe('Crossword', () => { 
     describe('createNewCrossword', () => {
+        it('initializes the crossword with an empty title', () => {
+            const crossword = createNewCrossword({height: 3, width: 5});
+            expect(crossword.title).toBe('');
+        });
+
         it('creates a number of squares equal to the product of the dimensions', () => {
             const crossword = createNewCrossword({height: 3, width: 5});
             expect(crossword.squares).toHaveLength(15);
@@ -89,6 +94,13 @@ describe('Crossword', () => {
     });
 
     describe('duplicateCrossword', () => {
+        it('preserves the title', () => {
+            const prevCrossword = setTitleAndDuplicateCrossword('my-title', createNewCrossword({width: 3, height: 3}));
+
+            const newCrossword = duplicateCrossword(prevCrossword);
+            expect(newCrossword.title).toBe('my-title');
+        });
+
         it('preserves the dimensions', () => {
             const prevCrossword = createNewCrossword({height: 3, width: 7});
 
@@ -189,6 +201,82 @@ describe('Crossword', () => {
             const newCrossword = duplicateCrossword(prevCrossword);
 
             expect(newCrossword.clues.down[0].text).toBe('');
+        });
+    });
+
+    describe('setTitleAndDuplicateCrossword', () => {
+        it('sets the title', () => {
+            const crossword = setTitleAndDuplicateCrossword('my-title', createNewCrossword({width: 3, height: 3}));
+
+            expect(crossword.title).toBe('my-title');
+        });
+
+        it('preserves the dimensions', () => {
+            const prevCrossword = createNewCrossword({height: 3, width: 7});
+
+            const newCrossword = setTitleAndDuplicateCrossword('test', prevCrossword);
+            expect(newCrossword.dimensions.height).toBe(3);
+            expect(newCrossword.dimensions.width).toBe(7);
+        });
+
+        it('preserves values and colors of squares', () => {
+            const prevCrossword = createNewCrossword({height: 1, width: 2});
+            prevCrossword.squares[0].value = 'a';
+            prevCrossword.squares[1].color = SquareColor.BLACK;
+
+            const newCrossword = setTitleAndDuplicateCrossword('test', prevCrossword);
+            expect(newCrossword.squares[0].color).toBe(SquareColor.WHITE);
+            expect(newCrossword.squares[0].value).toBe('a');
+            expect(newCrossword.squares[1].color).toBe(SquareColor.BLACK);
+            expect(newCrossword.squares[1].value).toBe('');
+        });
+
+        it('regenerates numbers for squares', () => {
+            const prevCrossword = createNewCrossword({height: 1, width: 2});
+            prevCrossword.squares[0].color = SquareColor.BLACK;
+            expect(prevCrossword.squares[0].number).toBe(1);
+            expect(prevCrossword.squares[1].number).toBe(2);
+
+            const newCrossword = setTitleAndDuplicateCrossword('test', prevCrossword);
+            expect(newCrossword.squares[0].number).toBe(null);
+            expect(newCrossword.squares[1].number).toBe(1);
+        });
+
+        it('regenerates clues for squares', () => {
+            const prevCrossword = createNewCrossword({height: 2, width: 2});
+            prevCrossword.squares[0].color = SquareColor.BLACK;
+            const newCrossword = setTitleAndDuplicateCrossword('test', prevCrossword);
+
+            const rangeAcross1: ClueRange = {
+                direction: InputDirection.ACROSS,
+                startIndex: 1,
+                endIndex: 1
+            };
+            const rangeAcross2: ClueRange = {
+                direction: InputDirection.ACROSS,
+                startIndex: 2,
+                endIndex: 3
+            };
+            const rangeDown1: ClueRange = {
+                direction: InputDirection.DOWN,
+                startIndex: 1,
+                endIndex: 3
+            };
+            const rangeDown2: ClueRange = {
+                direction: InputDirection.DOWN,
+                startIndex: 2,
+                endIndex: 2
+            };
+            expect(newCrossword.clues.across).toHaveLength(2);
+            expect(newCrossword.clues.across[0].number).toBe(1);
+            expect(newCrossword.clues.across[0].range).toEqual(rangeAcross1);
+            expect(newCrossword.clues.across[1].number).toBe(2);
+            expect(newCrossword.clues.across[1].range).toEqual(rangeAcross2);
+            expect(newCrossword.clues.down).toHaveLength(2);
+            expect(newCrossword.clues.down[0].number).toBe(1);
+            expect(newCrossword.clues.down[0].range).toEqual(rangeDown1);
+            expect(newCrossword.clues.down[1].number).toBe(2);
+            expect(newCrossword.clues.down[1].range).toEqual(rangeDown2);
         });
     });
 

@@ -45,11 +45,13 @@ export enum InputDirection {
 }
 
 export class Crossword {
+    public readonly title: string;
     public readonly dimensions: Dimensions;
     public readonly squares: Square[];
     public readonly clues: ClueSet;
 
-    constructor(dimensions: Dimensions, squares: Square[]|null, clues: ClueSet|null) {
+    constructor(title: string, dimensions: Dimensions, squares: Square[]|null, clues: ClueSet|null) {
+        this.title = title;
         this.validateDimensions(dimensions);
         this.dimensions = dimensions;
         if (squares) {
@@ -188,12 +190,12 @@ export class Crossword {
 }
 
 export function createNewCrossword(dimensions: Dimensions): Crossword {
-    return new Crossword(dimensions, null, null);
+    return new Crossword('', dimensions, null, null);
 }
 
 export function duplicateCrossword(crossword: Crossword): Crossword {
     const squares: Square[] = crossword.squares.map(s => duplicateSquare(s));
-    return new Crossword(duplicateDimensions(crossword.dimensions), squares, crossword.clues);
+    return new Crossword(crossword.title, duplicateDimensions(crossword.dimensions), squares, crossword.clues);
 }
 
 function duplicateDimensions(dimensions: Dimensions): Dimensions {
@@ -223,4 +225,9 @@ export function markActiveWordAndDuplicateCrossword(crossword: Crossword, direct
         activeWordSquare.inActiveWord = true;
     }
     return duplicateCrossword(crossword);
+}
+
+export function setTitleAndDuplicateCrossword(title: string, crossword: Crossword): Crossword {
+    const squares: Square[] = crossword.squares.map(s => duplicateSquare(s));
+    return new Crossword(title, duplicateDimensions(crossword.dimensions), squares, crossword.clues);
 }

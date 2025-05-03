@@ -5,7 +5,7 @@ import './crossword.css';
 import { EditClues } from './edit_clues';
 import { EditableCrossword } from './editable_crossword';
 import { CrosswordSettings } from './crossword_settings';
-import { Crossword, duplicateCrossword } from '../models/crossword';
+import { Crossword, duplicateCrossword, setTitleAndDuplicateCrossword } from '../models/crossword';
 
 interface PageCrosswordEditSettings {
     crossword: Crossword;
@@ -13,6 +13,7 @@ interface PageCrosswordEditSettings {
 }
 
 export function PageCrosswordEdit({crossword, setCrossword}: PageCrosswordEditSettings) {
+    debugger;
     const [editMode, setEditMode] = useState(EditMode.TOGGLE_BLACK);
     const [symmetryMode, setSymmetryMode] = useState(SymmetryMode.ROTATIONAL);
 
@@ -26,9 +27,13 @@ export function PageCrosswordEdit({crossword, setCrossword}: PageCrosswordEditSe
         setEditMode(editMode);
     }
 
+    const onInputTitle = (e: React.FormEvent<HTMLInputElement>) => {
+        setCrossword(setTitleAndDuplicateCrossword(e.currentTarget.value, crossword));
+    };
+
     return (
         <section className="flex flex-col w-full pl-16">
-            <input type="text" className="text-5xl w-[602px] mb-4" placeholder="title" />
+            <input type="text" className="text-5xl w-[602px] mb-4" placeholder="title" onChange={onInputTitle} />
             <div className="flex w-full">
                 <EditableCrossword crossword={crossword} setCrossword={setCrossword} editMode={editMode} symmetryMode={symmetryMode} />
                 <div className="min-w-[300px] ml-16">
