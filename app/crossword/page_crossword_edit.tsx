@@ -27,13 +27,16 @@ export function PageCrosswordEdit({crossword, setCrossword}: PageCrosswordEditSe
     }
 
     return (
-        <div className="flex w-full justify-evenly">
-            <EditableCrossword crossword={crossword} setCrossword={setCrossword} editMode={editMode} symmetryMode={symmetryMode} />
-            <div className="min-w-[300px] w-[40%]">
-                <CrosswordSettings editMode={editMode} setEditMode={setEditModeAndResetActiveSquare} symmetryMode={symmetryMode} setSymmetryMode={setSymmetryMode} />
-                {editMode == EditMode.CLUES && <EditClues crossword={crossword} setCrossword={setCrossword} />}
+        <section className="flex flex-col w-full pl-16">
+            <input type="text" className="text-5xl w-[602px] mb-4" placeholder="title" />
+            <div className="flex w-full">
+                <EditableCrossword crossword={crossword} setCrossword={setCrossword} editMode={editMode} symmetryMode={symmetryMode} />
+                <div className="min-w-[300px] ml-16">
+                    <CrosswordSettings editMode={editMode} setEditMode={setEditModeAndResetActiveSquare} symmetryMode={symmetryMode} setSymmetryMode={setSymmetryMode} />
+                    {editMode == EditMode.CLUES && <EditClues crossword={crossword} setCrossword={setCrossword} />}
+                </div>
             </div>
-        </div>
+        </section>
     );
 }
 

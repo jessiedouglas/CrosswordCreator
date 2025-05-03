@@ -67,10 +67,10 @@ export function EditClues({crossword, setCrossword}: EditCluesSettings) {
     return (
         <section className="mt-8" data-testid="clues">
             <h2>Clues</h2>
-            <div className="flex">
+            <div className="flex flex-wrap h-[60dvh] overflow-y-auto">
                 <div className='mr-2'>
                     <h3>Across</h3>
-                    <div data-testid="across-clues">
+                    <div className="" data-testid="across-clues">
                         {acrossClues}
                     </div>
                 </div>

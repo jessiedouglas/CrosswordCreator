@@ -142,7 +142,7 @@ export function PageNewCrossword() {
     }
     return (
         <main className="size-full flex flex-wrap flex-col content-center">
-            <h1 className="w-fit font-bold text-7xl mb-12">New Crossword</h1>
+            <h1 className="w-fit font-bold text-7xl mr-auto ml-auto mb-8">New Crossword</h1>
             {content}
         </main>
     );

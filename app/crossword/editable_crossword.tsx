@@ -200,7 +200,7 @@ export function EditableCrossword({crossword, setCrossword, editMode, symmetryMo
     }
     const style = {width: `${crossword.dimensions.width * 40}px`}
     return (
-        <div className={`crossword h-fit min-w-[602px] grid grid-cols-${crossword.dimensions.width} grid-flow-row border-r-2 border-b-2 border-black box-content`} style={style}>
+        <div className={`crossword h-fit shrink-0 grid grid-cols-${crossword.dimensions.width} grid-flow-row border-r-2 border-b-2 border-black box-content`} style={style}>
             {squareElements}
         </div>
     );

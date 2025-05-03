@@ -6,7 +6,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="size-full">
+    <html lang="en" className="h-fit w-full min-h-[100%]">
       <body className="size-full">
         {children}
       </body>
