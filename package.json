@@ -37,7 +37,7 @@
     "jest-preview": "^0.3.1",
     "postcss": "^8",
     "react-test-renderer": "^19.1.0",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^4.1.17",
     "typescript": "^5"
   },
   "moduleFileExtensions": [
